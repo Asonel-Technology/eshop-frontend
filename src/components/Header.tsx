@@ -51,7 +51,7 @@ export default function Header({
           {/* Logo */}
           <Link
             to="/"
-            className="flex-shrink-0 flex flex-col leading-none"
+            className="shrink-0 flex flex-col leading-none"
           >
             <span className="font-serif text-2xl font-bold tracking-tight text-foreground">Blessing</span>
             <span className="text-[8px] tracking-[0.2em] uppercase text-primary font-bold hidden sm:block">Your Online Marketplace</span>
@@ -151,7 +151,7 @@ export default function Header({
           <div ref={megaRef} className="relative">
             <button
               onClick={() => setMegaOpen(!megaOpen)}
-              className={`flex items-center gap-1.5 text-[11px] font-bold tracking-[0.1em] uppercase h-10 px-3 border-b-2 transition-all ${megaOpen ? "border-primary text-primary" : "border-transparent hover:text-primary"}`}
+              className={`flex items-center gap-1.5 text-[11px] font-bold tracking-widest uppercase h-10 px-3 border-b-2 transition-all ${megaOpen ? "border-primary text-primary" : "border-transparent hover:text-primary"}`}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
@@ -160,7 +160,7 @@ export default function Header({
             </button>
 
             {megaOpen && (
-              <div className="absolute top-full left-0 mt-0 w-[680px] bg-card border border-border shadow-2xl shadow-black/15 rounded-b-2xl py-6 px-6 z-50 grid grid-cols-4 gap-4">
+              <div className="absolute top-full left-0 mt-0 w-170 bg-card border border-border shadow-2xl shadow-black/15 rounded-b-2xl py-6 px-6 z-50 grid grid-cols-4 gap-4">
                 {categories.map((cat) => (
                   <Link
                     key={cat.id}
@@ -190,7 +190,7 @@ export default function Header({
             <Link
               key={link.label}
               to={link.page}
-              className="text-[11px] font-semibold tracking-[0.1em] uppercase text-muted-foreground hover:text-foreground h-10 px-1 border-b-2 border-transparent hover:border-foreground transition-all flex items-center"
+              className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground hover:text-foreground h-10 px-1 border-b-2 border-transparent hover:border-foreground transition-all flex items-center"
             >
               {link.label}
             </Link>

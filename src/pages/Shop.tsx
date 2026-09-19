@@ -34,6 +34,7 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
 
   // Search/Filter state
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [activeSubcategory, setActiveSubcategory] = useState<string>("all");
 
   // Handle URL changes
   useEffect(() => {
@@ -42,6 +43,7 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
     } else {
       setActiveCategory("all");
     }
+    setActiveSubcategory("all"); // Reset subcategory when category changes
   }, [slug]);
 
   // Load items from backend based on filters
@@ -52,6 +54,7 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
       try {
         const query: any = {};
         if (activeCategory !== "all") query.categorySlug = activeCategory;
+        if (activeSubcategory !== "all") query.subcategorySlug = activeSubcategory;
         const querySearch = searchParams.get("q");
         if (querySearch) query.search = querySearch;
         
@@ -66,7 +69,7 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
       }
     }
     loadShopItems();
-  }, [activeCategory, searchParams]);
+  }, [activeCategory, activeSubcategory, searchParams]);
 
   const pageTitles: Record<string, string> = {
     shop: searchQuery ? `Results for "${searchQuery}"` : "All Products",

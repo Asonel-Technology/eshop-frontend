@@ -74,7 +74,7 @@ export default function CategoriesManager() {
   };
 
   const handleDeleteCategory = async (id: string) => {
-    if (!token || !window.confirm("Are you sure? This will delete all associated subcategories and items.")) return;
+    if (!token || !window.confirm("Are you sure? This will fail if there are any products attached to this category.")) return;
     try {
       await deleteAdminCategory(token, id);
       loadCategories();
@@ -84,7 +84,7 @@ export default function CategoriesManager() {
   };
 
   const handleDeleteSubcategory = async (id: string) => {
-    if (!token || !window.confirm("Are you sure?")) return;
+    if (!token || !window.confirm("Are you sure? This will fail if there are any products attached to this subcategory.")) return;
     try {
       await deleteAdminSubcategory(token, id);
       loadCategories();

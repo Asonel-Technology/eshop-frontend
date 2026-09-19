@@ -57,6 +57,7 @@ export interface Category {
   imageUrl?: string;
   description?: string;
   count?: number;
+  productCount?: number;
   color?: string;
   colorCode?: string;
   subcategories?: Subcategory[];
