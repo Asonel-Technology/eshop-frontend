@@ -117,7 +117,7 @@ export default function ProductDetail({ onAddToCart, onWishlist, wishlist }: Pro
       : [];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 pb-16">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-24">
       {product && (
         <nav className="flex items-center gap-1.5 text-[11px] text-muted-foreground mb-6 flex-wrap">
           <Link to="/" className="hover:text-foreground">{t("nav.home")}</Link>
@@ -138,7 +138,7 @@ export default function ProductDetail({ onAddToCart, onWishlist, wishlist }: Pro
         </div>
       ) : (
         <>
-          <div className="grid lg:grid-cols-2 gap-10 mb-16">
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-10 mb-12 sm:mb-16">
             <div className="flex flex-col gap-3">
               <div className="rounded-2xl overflow-hidden bg-[#F5F5F5] aspect-square border border-border">
                 <img src={gallery[activeImg] || product.img} alt={product.name} className="w-full h-full object-cover" />
@@ -200,7 +200,7 @@ export default function ProductDetail({ onAddToCart, onWishlist, wishlist }: Pro
                       <button
                         key={opt}
                         onClick={() => setSelectedVariants((prev) => ({ ...prev, [variant.type]: opt }))}
-                        className={`text-[11px] font-semibold px-3.5 py-2 rounded-lg border ${selectedVariants[variant.type] === opt ? "bg-foreground text-background border-foreground" : "border-border hover:border-foreground"}`}
+                        className={`text-[11px] font-semibold min-h-11 px-4 rounded-lg border ${selectedVariants[variant.type] === opt ? "bg-foreground text-background border-foreground" : "border-border hover:border-foreground"}`}
                       >
                         {opt}
                       </button>
@@ -212,9 +212,9 @@ export default function ProductDetail({ onAddToCart, onWishlist, wishlist }: Pro
               <div className="flex items-center gap-4 mb-6">
                 <p className="text-[12px] font-semibold">{t("product.qty")}</p>
                 <div className="flex items-center border border-border rounded-xl overflow-hidden">
-                  <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-10 h-10 flex items-center justify-center hover:bg-muted font-bold text-lg">−</button>
+                  <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-11 h-11 flex items-center justify-center hover:bg-muted font-bold text-lg" aria-label="−">−</button>
                   <span className="w-12 text-center font-semibold text-[14px]">{qty}</span>
-                  <button onClick={() => setQty(qty + 1)} className="w-10 h-10 flex items-center justify-center hover:bg-muted font-bold text-lg">+</button>
+                  <button onClick={() => setQty(qty + 1)} className="w-11 h-11 flex items-center justify-center hover:bg-muted font-bold text-lg" aria-label="+">+</button>
                 </div>
                 {qty > 1 && (
                   <p className="text-[12px] text-muted-foreground">
@@ -227,7 +227,7 @@ export default function ProductDetail({ onAddToCart, onWishlist, wishlist }: Pro
                 <button
                   onClick={handleAddToCart}
                   disabled={!canAddToCart}
-                  className="flex-1 bg-primary text-white font-bold text-[12px] tracking-[0.15em] uppercase py-4 rounded-xl hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 min-h-12 bg-primary text-white font-bold text-[12px] tracking-[0.15em] uppercase py-4 rounded-xl hover:bg-secondary transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {!isAvailable ? t("stock.out") : missingSelection ? t("product.selectOptions") : t("product.addBag")}
                 </button>

@@ -36,9 +36,17 @@ export default function Layout({
 
   // Derive mobile tab from location
   let mobileTab = "home";
-  if (location.pathname.startsWith("/categories")) mobileTab = "categories";
-  else if (location.pathname.startsWith("/shop")) mobileTab = "shop";
-  else if (location.pathname.startsWith("/wishlist")) mobileTab = "wishlist";
+  if (location.pathname.startsWith("/wishlist")) mobileTab = "wishlist";
+  else if (location.pathname.startsWith("/categories") || location.pathname.startsWith("/category/")) mobileTab = "categories";
+  else if (
+    location.pathname.startsWith("/shop") ||
+    location.pathname.startsWith("/product") ||
+    location.pathname.startsWith("/deals") ||
+    location.pathname.startsWith("/new") ||
+    location.pathname.startsWith("/bestsellers")
+  ) {
+    mobileTab = "shop";
+  }
 
   function handleSearchSubmit() {
     if (!searchQuery.trim()) return;
@@ -75,7 +83,7 @@ export default function Layout({
       <ChatWidget />
 
       {/* Mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-background border-t border-border">
+      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-background border-t border-border pb-[env(safe-area-inset-bottom)]">
         <div className="grid grid-cols-4">
           {[
             { key: "home", label: t("nav.home"), path: "/" },
@@ -86,7 +94,7 @@ export default function Layout({
             <button
               key={tab.key}
               onClick={() => { window.scrollTo({ top: 0, behavior: "smooth" }); navigate(tab.path); }}
-              className={`flex items-center justify-center py-3.5 text-[11px] font-medium transition-colors ${mobileTab === tab.key ? "text-primary" : "text-muted-foreground"}`}
+              className={`flex items-center justify-center min-h-12 text-[11px] font-medium transition-colors ${mobileTab === tab.key ? "text-primary" : "text-muted-foreground"}`}
             >
               {tab.label}
             </button>
@@ -94,8 +102,7 @@ export default function Layout({
         </div>
       </nav>
 
-      {/* Mobile nav spacer */}
-      <div className="h-16 lg:hidden" />
+      <div className="h-[calc(3.5rem+env(safe-area-inset-bottom))] lg:hidden" />
     </div>
   );
 }

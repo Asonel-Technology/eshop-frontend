@@ -43,7 +43,7 @@ export default function ProductsManager() {
             <button
               key={value || "all"}
               onClick={() => setType(value)}
-              className={`px-3 py-1.5 text-[12px] border ${
+              className={`min-h-11 px-3 text-[12px] border ${
                 type === value ? "bg-[#1c1915] text-[#efe8dc] border-[#1c1915]" : "border-[#d8cfc0]"
               }`}
             >
@@ -53,7 +53,7 @@ export default function ProductsManager() {
         </div>
         <Link
           to="/admin/products/new"
-          className="h-10 px-4 inline-flex items-center bg-[#1c1915] text-[#efe8dc] text-[12px] tracking-[0.12em] uppercase"
+          className="min-h-11 px-4 inline-flex items-center bg-[#1c1915] text-[#efe8dc] text-[12px] tracking-[0.12em] uppercase"
         >
           Add item
         </Link>
@@ -82,7 +82,7 @@ export default function ProductsManager() {
               <p className="tabular text-[13px] w-10 text-right">{stockQty(item)}</p>
               <button
                 onClick={() => remove(item.id, item.name)}
-                className="text-[11px] text-[#9a3412] hover:underline"
+                className="min-h-11 px-2 text-[11px] text-[#9a3412] hover:underline"
               >
                 Delete
               </button>

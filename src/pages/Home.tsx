@@ -19,7 +19,7 @@ function SectionHeader({ title, cta, onCta }: { title: string; cta?: string; onC
       {cta && (
         <button
           onClick={onCta}
-          className="hidden sm:block text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+          className="text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors shrink-0"
         >
           {cta}
         </button>
@@ -48,26 +48,26 @@ export default function Home({ categories, featuredItems, onAddToCart, onWishlis
   return (
     <div className="bg-background min-h-screen">
       <section className="bg-[#111111]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24 grid lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 lg:py-24 grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
           <div>
-            <p className="text-[11px] font-medium tracking-[0.18em] uppercase text-primary mb-5">{t("brand.city")}</p>
-            <h1 className="font-serif text-5xl sm:text-6xl font-bold text-white leading-[1.05] mb-5">
+            <p className="text-[11px] font-medium tracking-[0.18em] uppercase text-primary mb-4 sm:mb-5">{t("brand.city")}</p>
+            <h1 className="font-serif text-[2.25rem] leading-[1.1] sm:text-5xl lg:text-6xl font-bold text-white sm:leading-[1.05] mb-4 sm:mb-5">
               {t("home.headline1")}<br />{t("home.headline2")}
             </h1>
-            <p className="text-white/60 text-[15px] leading-relaxed mb-8 max-w-sm">
+            <p className="text-white/60 text-[15px] leading-relaxed mb-7 sm:mb-8 max-w-sm">
               {t("home.sub")}
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3">
               <button
                 onClick={() => navigate("/shop")}
-                className="bg-primary text-white font-bold text-[11px] tracking-[0.15em] uppercase px-7 py-3.5 rounded-xl hover:bg-white hover:text-foreground transition-all"
+                className="bg-primary text-white font-bold text-[11px] tracking-[0.15em] uppercase min-h-12 px-7 rounded-xl hover:bg-white hover:text-foreground transition-all"
               >
                 {t("home.shop")}
               </button>
               {butcher && (
                 <button
                   onClick={() => navigate(`/category/${butcher.slug}`)}
-                  className="bg-white/10 border border-white/25 text-white font-bold text-[11px] tracking-[0.15em] uppercase px-7 py-3.5 rounded-xl hover:bg-white hover:text-foreground transition-all"
+                  className="bg-white/10 border border-white/25 text-white font-bold text-[11px] tracking-[0.15em] uppercase min-h-12 px-7 rounded-xl hover:bg-white hover:text-foreground transition-all"
                 >
                   {t("home.butcher")}
                 </button>
@@ -221,7 +221,7 @@ export default function Home({ categories, featuredItems, onAddToCart, onWishlis
           <p className="text-white/65 text-sm mb-7">{t("home.readySub")}</p>
           <button
             onClick={() => navigate("/shop")}
-            className="bg-white text-primary font-bold text-[11px] tracking-[0.15em] uppercase px-6 py-3.5 rounded-xl hover:bg-foreground hover:text-white transition-colors"
+            className="min-h-12 bg-white text-primary font-bold text-[11px] tracking-[0.15em] uppercase px-6 rounded-xl hover:bg-foreground hover:text-white transition-colors"
           >
             {t("home.openShop")}
           </button>

@@ -74,7 +74,7 @@ export default function OrderDetail() {
         <section className="space-y-5">
           <div>
             <p className="text-[11px] tracking-[0.18em] uppercase text-[#6b6256]">Expected total</p>
-            <p className="tabular text-[40px] leading-none mt-1">{formatRWF(order.total)}</p>
+            <p className="tabular text-[28px] sm:text-[40px] leading-none mt-1">{formatRWF(order.total)}</p>
             <p className="text-[12px] text-[#6b6256] mt-2">
               Items {formatRWF(order.subtotal)} + delivery {formatRWF(order.deliveryFee)}
             </p>

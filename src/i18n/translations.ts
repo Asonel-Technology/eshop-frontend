@@ -180,6 +180,8 @@ export const en = {
   "help.delA": "We deliver across Rwanda. The fee is set at checkout once you pick your location.",
   "help.ret": "Returns",
   "help.retA": "Talk to us on WhatsApp if something is wrong. Fresh meat is prepared to order and cannot be returned once delivered.",
+  "help.install": "Add Blessing to this device",
+  "help.iosInstall": "On iPhone: tap Share, then Add to Home Screen.",
 
   "app.errorTitle": "Something went wrong",
   "app.error": "Could not reach the shop.",
@@ -377,6 +379,8 @@ export const rw: Record<MsgKey, string> = {
   "help.delA": "Twohereza mu Rwanda hose. Ikiguzi kigaragara iyo wishyura, nyuma yo guhitamo aho uherereye.",
   "help.ret": "Gusubiza",
   "help.retA": "Tuvugishe kuri WhatsApp niba hari ikibazo. Inyama zitegurwa ku buryo waguze, ntizisubizwa nyuma yo kugezwa.",
+  "help.install": "Shyira Blessing kuri iyi telefoni",
+  "help.iosInstall": "Kuri iPhone: kanda Share, hanyuma Add to Home Screen.",
 
   "app.errorTitle": "Habaye ikibazo",
   "app.error": "Iduka ntirishoboye gufunguka.",

@@ -61,17 +61,17 @@ export default function MeatDepartment({ category, onAddToCart, onWishlist, wish
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-12">
-        <div className="relative rounded-3xl overflow-hidden bg-foreground text-background h-[300px] md:h-[400px] flex items-center">
+        <div className="relative rounded-xl md:rounded-3xl overflow-hidden bg-foreground text-background min-h-[220px] md:h-[400px] flex items-center">
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent z-10" />
           <img
             src={heroImage}
             alt=""
             className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay"
           />
-          <div className="relative z-20 px-8 md:px-16 max-w-2xl">
+          <div className="relative z-20 px-5 py-10 sm:px-8 md:px-16 max-w-2xl">
             <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-primary mb-3">Blessing</p>
-            <h1 className="font-serif text-4xl md:text-6xl font-bold mb-4 text-white">{t("butcher.title")}</h1>
-            <p className="text-lg md:text-xl text-gray-300 font-medium tracking-wide">
+            <h1 className="font-serif text-3xl sm:text-4xl md:text-6xl font-bold mb-3 md:mb-4 text-white">{t("butcher.title")}</h1>
+            <p className="text-[15px] md:text-xl text-gray-300 font-medium tracking-wide">
               {t("butcher.sub")}
             </p>
           </div>
@@ -90,7 +90,7 @@ export default function MeatDepartment({ category, onAddToCart, onWishlist, wish
                   <button
                     key={cut.id}
                     onClick={() => setActiveSubcat(cut.slug)}
-                    className={`flex-shrink-0 px-6 py-3 rounded-xl border font-semibold text-[12px] tracking-wider uppercase transition-colors whitespace-nowrap ${
+                    className={`flex-shrink-0 min-h-11 px-5 py-2.5 rounded-xl border font-semibold text-[12px] tracking-wider uppercase transition-colors whitespace-nowrap ${
                       isActive
                         ? "border-primary bg-primary text-white"
                         : "border-border bg-white text-muted-foreground hover:border-primary hover:text-foreground"

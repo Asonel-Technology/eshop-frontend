@@ -61,7 +61,7 @@ export default function ProductCard({ product, onAddToCart, onWishlist, wishlist
         <button
           onClick={handleWishlist}
           aria-label={wishlisted ? t("card.unsave") : t("card.save")}
-          className={`absolute top-2.5 right-2.5 w-7 h-7 rounded-full flex items-center justify-center ${wishlisted ? "bg-primary text-white" : "bg-white text-foreground hover:bg-primary hover:text-white"}`}
+          className={`absolute top-2 right-2 w-11 h-11 rounded-full flex items-center justify-center ${wishlisted ? "bg-primary text-white" : "bg-white text-foreground hover:bg-primary hover:text-white"}`}
         >
           <IconHeart filled={wishlisted} />
         </button>
@@ -91,7 +91,7 @@ export default function ProductCard({ product, onAddToCart, onWishlist, wishlist
           <button
             onClick={handleAdd}
             disabled={product.stock === "Out of Stock"}
-            className={`text-[10px] font-bold tracking-wider uppercase px-3 py-2 rounded-lg transition-colors disabled:opacity-40 ${added ? "bg-emerald-600 text-white" : "bg-primary text-white hover:bg-secondary"}`}
+            className={`text-[10px] font-bold tracking-wider uppercase min-h-10 px-3 rounded-lg transition-colors disabled:opacity-40 ${added ? "bg-emerald-600 text-white" : "bg-primary text-white hover:bg-secondary"}`}
           >
             {added ? t("card.added") : t("card.add")}
           </button>

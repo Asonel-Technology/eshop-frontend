@@ -96,7 +96,7 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
   const countLabel = t(total === 1 ? "shop.productOne" : "shop.productMany", { n: total });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 pb-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 pb-20">
       {pageId === "category" && category && (
         <>
           <nav className="flex items-center gap-1.5 text-[11px] text-muted-foreground mb-6">

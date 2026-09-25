@@ -227,7 +227,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
           </p>
           <button
             onClick={() => setPage("checkout")}
-            className="bg-foreground text-background font-bold text-[12px] tracking-wider uppercase px-6 py-3.5 rounded-xl hover:bg-secondary transition-colors"
+            className="min-h-12 bg-foreground text-background font-bold text-[12px] tracking-wider uppercase px-6 rounded-xl hover:bg-secondary transition-colors"
           >
             {t("pay.backCheckout")}
           </button>
@@ -252,7 +252,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
             <button
               type="button"
               onClick={copyMomo}
-              className="text-[11px] font-bold tracking-wider uppercase px-4 py-2 rounded-lg transition-all"
+              className="min-h-11 text-[11px] font-bold tracking-wider uppercase px-4 rounded-lg transition-all"
             >
               {copied ? t("pay.copied") : t("pay.copy")}
             </button>
@@ -286,7 +286,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
               <button
                 type="button"
                 onClick={() => { setScreenshot(null); setScreenshotPreview(null); }}
-                className="absolute top-2 right-2 bg-red-500 text-white w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold"
+                className="absolute top-2 right-2 bg-red-500 text-white w-11 h-11 rounded-full flex items-center justify-center text-[11px] font-bold"
               >✕</button>
             </div>
           )}
@@ -299,7 +299,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
             required
             checked={confirmed}
             onChange={(e) => setConfirmed(e.target.checked)}
-            className="mt-0.5 w-4 h-4 accent-primary"
+            className="mt-0.5 w-5 h-5 accent-primary"
           />
           <span className="text-[13px] leading-relaxed">{t("pay.confirm", { amount: formatRWF(total) })}</span>
         </label>
@@ -328,26 +328,38 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
 
   // Multi-step checkout
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-      <h1 className="font-serif text-2xl font-bold mb-6">{t("check.title")}</h1>
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+      <h1 className="font-serif text-2xl font-bold mb-4 sm:mb-6">{t("check.title")}</h1>
 
-      {/* Step indicators */}
-      <div className="flex items-center gap-2 mb-8 overflow-x-auto pb-1">
-        {[
+      {(() => {
+        const steps = [
           { n: 1, label: t("check.stepDetails") },
           { n: 2, label: t("check.stepDelivery") },
           { n: 3, label: t("check.stepReview") },
           { n: 4, label: t("check.stepPayment") },
-        ].map((s, i) => (
-          <div key={s.n} className="flex items-center gap-2 flex-shrink-0">
-            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold transition-all ${step >= s.n ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
-              {step > s.n ? "✓" : s.n}
+        ];
+        const current = steps.find((s) => s.n === step) || steps[0];
+        return (
+          <>
+            <p className="sm:hidden text-[13px] mb-6">
+              <span className="text-muted-foreground">{step}/4</span>
+              {" "}
+              <span className="font-semibold">{current.label}</span>
+            </p>
+            <div className="hidden sm:flex items-center gap-2 mb-8">
+              {steps.map((s, i) => (
+                <div key={s.n} className="flex items-center gap-2 flex-shrink-0">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold ${step >= s.n ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+                    {step > s.n ? "✓" : s.n}
+                  </div>
+                  <span className="text-[11px] font-semibold">{s.label}</span>
+                  {i < 3 && <div className="h-px w-8 bg-border" />}
+                </div>
+              ))}
             </div>
-            <span className="text-[11px] font-semibold">{s.label}</span>
-            {i < 3 && <div className="h-px w-8 bg-border" />}
-          </div>
-        ))}
-      </div>
+          </>
+        );
+      })()}
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Form */}
@@ -362,7 +374,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
                 }
                 setErrorMessage(null);
                 setStep(2);
-              }} className="bg-card border border-border rounded-2xl p-6">
+              }} className="bg-card border border-border rounded-2xl p-4 sm:p-6">
               <h2 className="font-semibold text-base mb-5">{t("check.yourDetails")}</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
@@ -374,7 +386,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
                     value={form.fullName}
                     onChange={(e) => setForm((f) => ({ ...f, fullName: e.target.value }))}
                     placeholder="Jean-Paul Hakizimana"
-                    className="w-full border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-primary transition-colors"
+                    className="w-full border border-border rounded-xl px-4 py-3 min-h-12 text-[16px] sm:text-[13px] outline-none focus:border-primary transition-colors"
                   />
                 </div>
                 <div>
@@ -386,7 +398,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
                     value={form.phone}
                     onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                     placeholder="078 XXX XXXX"
-                    className="w-full border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-primary transition-colors"
+                    className="w-full border border-border rounded-xl px-4 py-3 min-h-12 text-[16px] sm:text-[13px] outline-none focus:border-primary transition-colors"
                   />
                   {errorMessage && (
                     <p className="text-red-600 text-[11px] mt-1.5">{errorMessage}</p>
@@ -400,13 +412,13 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                     placeholder="you@email.com"
-                    className="w-full border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-primary transition-colors"
+                    className="w-full border border-border rounded-xl px-4 py-3 min-h-12 text-[16px] sm:text-[13px] outline-none focus:border-primary transition-colors"
                   />
                 </div>
               </div>
               <button
                 type="submit"
-                className="mt-6 w-full bg-primary text-white font-bold text-[11px] tracking-[0.15em] uppercase py-3.5 rounded-xl hover:bg-secondary transition-colors"
+                className="mt-6 w-full min-h-12 bg-primary text-white font-bold text-[11px] tracking-[0.15em] uppercase py-3.5 rounded-xl hover:bg-secondary transition-colors"
               >
                 {t("check.continue")}
               </button>
@@ -414,7 +426,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
           )}
 
           {step === 2 && (
-            <form onSubmit={(e) => { e.preventDefault(); setStep(3); }} className="bg-card border border-border rounded-2xl p-6">
+            <form onSubmit={(e) => { e.preventDefault(); setStep(3); }} className="bg-card border border-border rounded-2xl p-4 sm:p-6">
               <h2 className="font-semibold text-base mb-5">{t("check.stepDelivery")}</h2>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
@@ -423,7 +435,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
                     required
                     value={form.province}
                     onChange={handleProvinceChange}
-                    className="w-full border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-primary bg-background"
+                    className="w-full border border-border rounded-xl px-4 py-3 min-h-12 text-[16px] sm:text-[13px] outline-none focus:border-primary bg-background"
                   >
                     <option value="">{t("check.province")}</option>
                     {provinces.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -435,7 +447,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
                     required
                     value={form.district}
                     onChange={handleDistrictChange}
-                    className="w-full border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-primary bg-background"
+                    className="w-full border border-border rounded-xl px-4 py-3 min-h-12 text-[16px] sm:text-[13px] outline-none focus:border-primary bg-background"
                     disabled={!form.province || districts.length === 0}
                   >
                     <option value="">{t("check.district")}</option>
@@ -448,7 +460,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
                     required
                     value={form.sector}
                     onChange={(e) => setForm(f => ({ ...f, sector: e.target.value }))}
-                    className="w-full border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-primary bg-background"
+                    className="w-full border border-border rounded-xl px-4 py-3 min-h-12 text-[16px] sm:text-[13px] outline-none focus:border-primary bg-background"
                     disabled={!form.district || sectors.length === 0}
                   >
                     <option value="">{t("check.sector")}</option>
@@ -464,7 +476,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
                     value={form.address}
                     onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
                     placeholder="e.g. KG 7 Ave, House 12"
-                    className="w-full border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-primary"
+                    className="w-full border border-border rounded-xl px-4 py-3 min-h-12 text-[16px] sm:text-[13px] outline-none focus:border-primary"
                   />
                 </div>
                 <div className="sm:col-span-2">
@@ -474,15 +486,15 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
                     onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
                     placeholder="e.g. Call on arrival, leave at gate..."
                     rows={3}
-                    className="w-full border border-border rounded-xl px-4 py-3 text-[13px] outline-none focus:border-primary resize-none"
+                    className="w-full border border-border rounded-xl px-4 py-3 text-[16px] sm:text-[13px] outline-none focus:border-primary resize-none"
                   />
                 </div>
               </div>
               <div className="flex gap-3 mt-6">
-                <button type="button" onClick={() => setStep(1)} className="flex-1 border border-border text-[11px] font-bold tracking-wider uppercase py-3.5 rounded-xl hover:bg-muted transition-colors">{t("check.back")}</button>
+                <button type="button" onClick={() => setStep(1)} className="flex-1 min-h-12 border border-border text-[11px] font-bold tracking-wider uppercase py-3.5 rounded-xl hover:bg-muted transition-colors">{t("check.back")}</button>
                 <button
                   type="submit"
-                  className="flex-1 bg-primary text-white font-bold text-[11px] tracking-[0.15em] uppercase py-3.5 rounded-xl hover:bg-secondary transition-colors"
+                  className="flex-1 min-h-12 bg-primary text-white font-bold text-[11px] tracking-[0.15em] uppercase py-3.5 rounded-xl hover:bg-secondary transition-colors"
                 >
                   {t("check.review")}
                 </button>
@@ -491,7 +503,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
           )}
 
           {step === 3 && (
-            <div className="bg-card border border-border rounded-2xl p-6">
+            <div className="bg-card border border-border rounded-2xl p-4 sm:p-6">
               <h2 className="font-semibold text-base mb-5">{t("check.review")}</h2>
               <div className="flex flex-col gap-3 mb-5">
                 {items.map((item, i) => (
@@ -536,11 +548,11 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
               {/* Payment method */}
               <p className="text-[12px] text-muted-foreground mb-5">{t("check.payWith")}</p>
               <div className="flex gap-3">
-                <button onClick={() => setStep(2)} className="flex-1 border border-border text-[11px] font-bold tracking-wider uppercase py-3.5 rounded-xl hover:bg-muted transition-colors">{t("check.back")}</button>
+                <button onClick={() => setStep(2)} className="flex-1 min-h-12 border border-border text-[11px] font-bold tracking-wider uppercase py-3.5 rounded-xl hover:bg-muted transition-colors">{t("check.back")}</button>
                 <button
                   onClick={() => setPage("payment")}
                   disabled={!quote || !quote.fulfillable || quoteLoading}
-                  className="flex-1 bg-primary text-white font-bold text-[11px] tracking-[0.15em] uppercase py-3.5 rounded-xl hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex-1 min-h-12 bg-primary text-white font-bold text-[11px] tracking-[0.15em] uppercase py-3.5 rounded-xl hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {quoteLoading ? t("check.checking") : t("check.pay")}
                 </button>

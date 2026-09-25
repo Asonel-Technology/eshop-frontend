@@ -39,7 +39,7 @@ export default function Wishlist({ ids, onAddToCart, onWishlist }: WishlistProps
   }, [ids]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 pb-20">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 pb-20">
       <h1 className="font-serif text-2xl sm:text-3xl font-bold mb-8">{t("wish.title")}</h1>
 
       {loading ? (

@@ -101,9 +101,9 @@ export default function CategoriesManager() {
     <div className="space-y-8 max-w-5xl">
       {error && <div className="bg-red-50 text-red-600 p-4 rounded-xl">{error}</div>}
 
-      <div className="bg-white border border-border rounded-2xl p-6 shadow-sm">
+      <div className="bg-white border border-border rounded-2xl p-4 sm:p-6 shadow-sm">
         <h3 className="font-serif text-lg font-bold mb-4">Add category</h3>
-        <form onSubmit={handleAddCategory} className="flex gap-4 items-end">
+        <form onSubmit={handleAddCategory} className="flex flex-col sm:flex-row gap-4 sm:items-end">
           <div className="flex-1">
             <label className="block text-[11px] font-bold tracking-wider uppercase text-muted-foreground mb-1.5">Name</label>
             <input
@@ -112,15 +112,15 @@ export default function CategoriesManager() {
               value={newCatName}
               onChange={(e) => setNewCatName(e.target.value)}
               placeholder="e.g. Body oils"
-              className="w-full h-10 px-3 rounded-lg border border-border focus:border-primary outline-none text-[13px]"
+              className="w-full min-h-11 px-3 rounded-lg border border-border focus:border-primary outline-none text-[16px] sm:text-[13px]"
             />
           </div>
-          <div className="w-48">
+          <div className="sm:w-48">
             <label className="block text-[11px] font-bold tracking-wider uppercase text-muted-foreground mb-1.5">Type</label>
             <select
               value={newCatType}
               onChange={(e) => setNewCatType(e.target.value)}
-              className="w-full h-10 px-3 rounded-lg border border-border focus:border-primary outline-none text-[13px]"
+              className="w-full min-h-11 px-3 rounded-lg border border-border focus:border-primary outline-none text-[16px] sm:text-[13px]"
             >
               <option value="PRODUCT">Product (clothes, oils, kitchen…)</option>
               <option value="FOOD">Butcher</option>
@@ -129,7 +129,7 @@ export default function CategoriesManager() {
           <button
             type="submit"
             disabled={loadingAddCat || !newCatName}
-            className="h-10 px-6 bg-primary text-white font-bold text-[11px] tracking-wider uppercase rounded-lg hover:bg-secondary disabled:opacity-50 transition-colors"
+            className="min-h-11 px-6 bg-primary text-white font-bold text-[11px] tracking-wider uppercase rounded-lg hover:bg-secondary disabled:opacity-50 transition-colors"
           >
             Add
           </button>
@@ -139,7 +139,7 @@ export default function CategoriesManager() {
       <div className="space-y-4">
         {categories.map((cat) => (
           <div key={cat.id} className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
-            <div className="bg-[#fcfcfc] p-4 border-b border-border flex items-center justify-between">
+            <div className="bg-[#fcfcfc] p-4 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-serif text-lg font-bold text-foreground">{cat.name}</span>
@@ -147,16 +147,16 @@ export default function CategoriesManager() {
                 </div>
                 <p className="text-[12px] text-muted-foreground">/{cat.slug}</p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setActiveCategoryId(activeCategoryId === cat.id ? null : cat.id)}
-                  className="px-4 py-2 bg-foreground text-background text-[11px] font-bold tracking-wider uppercase rounded-lg hover:bg-secondary transition-colors"
+                  className="min-h-11 px-4 bg-foreground text-background text-[11px] font-bold tracking-wider uppercase rounded-lg hover:bg-secondary transition-colors"
                 >
                   + Subcategory
                 </button>
                 <button
                   onClick={() => handleDeleteCategory(cat.id)}
-                  className="px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50 text-[11px] font-bold tracking-wider uppercase rounded-lg transition-colors"
+                  className="min-h-11 px-4 border border-red-200 text-red-600 hover:bg-red-50 text-[11px] font-bold tracking-wider uppercase rounded-lg transition-colors"
                 >
                   Delete
                 </button>
@@ -165,24 +165,24 @@ export default function CategoriesManager() {
 
             {/* Add Subcategory Form */}
             {activeCategoryId === cat.id && (
-              <div className="p-4 bg-muted/30 border-b border-border flex gap-3">
+              <div className="p-4 bg-muted/30 border-b border-border flex flex-col sm:flex-row gap-3">
                 <input
                   type="text"
                   placeholder="Subcategory Name (e.g. Beef)"
                   value={newSubcatName}
                   onChange={(e) => setNewSubcatName(e.target.value)}
-                  className="flex-1 h-9 px-3 rounded-lg border border-border text-[13px] outline-none focus:border-primary"
+                  className="flex-1 min-h-11 px-3 rounded-lg border border-border text-[16px] sm:text-[13px] outline-none focus:border-primary"
                 />
                 <button
                   onClick={() => handleAddSubcategory(cat.id)}
                   disabled={loadingAddSubcat || !newSubcatName}
-                  className="h-9 px-4 bg-primary text-white text-[11px] font-bold uppercase tracking-wider rounded-lg disabled:opacity-50"
+                  className="min-h-11 px-4 bg-primary text-white text-[11px] font-bold uppercase tracking-wider rounded-lg disabled:opacity-50"
                 >
                   Save
                 </button>
                 <button
                   onClick={() => setActiveCategoryId(null)}
-                  className="h-9 px-4 border border-border text-[11px] font-bold uppercase tracking-wider rounded-lg"
+                  className="min-h-11 px-4 border border-border text-[11px] font-bold uppercase tracking-wider rounded-lg"
                 >
                   Cancel
                 </button>

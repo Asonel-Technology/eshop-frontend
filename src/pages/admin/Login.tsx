@@ -32,10 +32,10 @@ export default function AdminLogin({ onSuccess, onExit }: LoginProps) {
 
   return (
     <div className="blessing-backoffice min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#f7f1e7] border border-[#d8cfc0] p-8">
-        <div className="flex justify-between items-center mb-8">
+      <div className="w-full max-w-md bg-[#f7f1e7] border border-[#d8cfc0] p-5 sm:p-8">
+        <div className="flex justify-between items-center gap-3 mb-8">
           <h1 className="text-2xl">Order book</h1>
-          <button onClick={onExit} className="text-[12px] font-bold text-muted-foreground hover:text-foreground">
+          <button onClick={onExit} className="min-h-11 text-[12px] font-bold text-muted-foreground hover:text-foreground">
             Back to the shop
           </button>
         </div>
@@ -56,7 +56,7 @@ export default function AdminLogin({ onSuccess, onExit }: LoginProps) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-[14px]"
+              className="w-full h-12 px-4 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-[16px] sm:text-[14px]"
               placeholder="admin@blessing.com"
             />
           </div>
@@ -70,7 +70,7 @@ export default function AdminLogin({ onSuccess, onExit }: LoginProps) {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-[14px]"
+              className="w-full h-12 px-4 rounded-xl border border-border focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-[16px] sm:text-[14px]"
               placeholder="••••••••"
             />
           </div>

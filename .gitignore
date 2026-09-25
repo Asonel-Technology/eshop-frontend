@@ -24,8 +24,12 @@ logs/
 AGENTS.md
 CLAUDE.md
 .mise.toml
-
+implementation_plan.md
 
 # Archives
 *.zip
+
+# Keep only the project README in git. Other markdown is local notes.
+*.md
+!README.md
 

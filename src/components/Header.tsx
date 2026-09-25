@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import type { Category } from "../data";
 import { useI18n } from "../i18n/LanguageContext";
 import LangSwitch from "./LangSwitch";
@@ -23,13 +23,18 @@ export default function Header({
   onSearchSubmit,
   categories = [],
 }: HeaderProps) {
-  const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { t, catalog } = useI18n();
   const [megaOpen, setMegaOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const megaRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setMenuOpen(false);
+    setMegaOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -39,19 +44,24 @@ export default function Header({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  function submitSearch() {
+    onSearchSubmit();
+    setMenuOpen(false);
+  }
+
   const popularSearches = categories.slice(0, 6).map((c) => c.name);
 
   return (
     <header className="sticky top-0 z-50 bg-background shadow-sm shadow-black/5">
       {/* Announcement bar */}
-      <div className="bg-secondary text-secondary-foreground relative py-2 px-4 text-[10px] font-bold tracking-[0.2em] uppercase">
-        <p className="text-center pr-16 sm:pr-0">{t("bar.announce")}</p>
-        <LangSwitch className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-foreground" />
+      <div className="bg-secondary text-secondary-foreground relative py-2 pl-4 pr-20 text-[10px] font-bold tracking-[0.18em] uppercase">
+        <p className="text-center truncate">{t("bar.announce")}</p>
+        <LangSwitch className="absolute right-2 top-1/2 -translate-y-1/2 text-secondary-foreground" />
       </div>
 
       {/* Main header */}
       <div className="border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 sm:h-16 flex items-center gap-3 sm:gap-4">
           {/* Logo */}
           <Link
             to="/"
@@ -71,12 +81,12 @@ export default function Header({
                 onChange={(e) => onSearchChange(e.target.value)}
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
-                onKeyDown={(e) => e.key === "Enter" && onSearchSubmit()}
+                onKeyDown={(e) => e.key === "Enter" && submitSearch()}
                 placeholder={t("nav.searchPlaceholder")}
-                className="flex-1 px-4 py-2.5 text-[13px] outline-none bg-background"
+                className="flex-1 px-4 py-2.5 text-[16px] md:text-[13px] outline-none bg-background"
               />
               <button
-                onClick={onSearchSubmit}
+                onClick={submitSearch}
                 className="bg-primary text-white px-4 flex items-center gap-1.5 hover:bg-secondary transition-colors"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -93,8 +103,8 @@ export default function Header({
                 {popularSearches.map((s) => (
                   <button
                     key={s}
-                    onMouseDown={() => { onSearchChange(s); onSearchSubmit(); }}
-                    className="w-full text-left px-4 py-2 text-[13px] hover:bg-muted flex items-center gap-2"
+                    onMouseDown={() => { onSearchChange(s); submitSearch(); }}
+                    className="w-full text-left px-4 py-3 text-[13px] hover:bg-muted flex items-center gap-2 min-h-11"
                   >
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
                       <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
@@ -111,7 +121,7 @@ export default function Header({
             {/* Mobile search */}
             <button
               onClick={() => setMenuOpen(true)}
-              className="md:hidden p-2.5 hover:text-primary transition-colors rounded-lg hover:bg-muted"
+              className="md:hidden min-h-11 min-w-11 flex items-center justify-center hover:text-primary transition-colors rounded-lg hover:bg-muted"
               aria-label={t("nav.search")}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
@@ -119,7 +129,7 @@ export default function Header({
               </svg>
             </button>
 
-            <Link to="/wishlist" className="hidden sm:flex p-2.5 hover:text-primary transition-colors rounded-lg hover:bg-muted relative" aria-label={t("home.savedItems")}>
+            <Link to="/wishlist" className="hidden sm:flex min-h-11 min-w-11 items-center justify-center hover:text-primary transition-colors rounded-lg hover:bg-muted relative" aria-label={t("home.savedItems")}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
@@ -130,7 +140,8 @@ export default function Header({
 
             <button
               onClick={onCartOpen}
-              className="p-2.5 hover:text-primary transition-colors rounded-lg hover:bg-muted relative"
+              className="min-h-11 min-w-11 flex items-center justify-center hover:text-primary transition-colors rounded-lg hover:bg-muted relative"
+              aria-label={t("nav.bag")}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
@@ -141,7 +152,12 @@ export default function Header({
             </button>
 
             {/* Mobile hamburger */}
-            <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2.5 rounded-lg hover:bg-muted">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="lg:hidden min-h-11 min-w-11 flex items-center justify-center rounded-lg hover:bg-muted"
+              aria-label={menuOpen ? t("nav.close") : t("nav.categories")}
+              aria-expanded={menuOpen}
+            >
               <div className="flex flex-col gap-1.5 w-5">
                 <span className="block h-px bg-foreground" />
                 <span className="block h-px bg-foreground" />
@@ -168,7 +184,7 @@ export default function Header({
             </button>
 
             {megaOpen && (
-              <div className="absolute top-full left-0 mt-0 w-170 bg-card border border-border shadow-2xl shadow-black/15 rounded-b-2xl py-6 px-6 z-50 grid grid-cols-4 gap-4">
+              <div className="absolute top-full left-0 mt-0 w-[min(42rem,calc(100vw-2rem))] bg-card border border-border shadow-2xl shadow-black/15 rounded-b-2xl py-6 px-6 z-50 grid grid-cols-2 xl:grid-cols-4 gap-4">
                 {categories.map((cat) => (
                   <Link
                     key={cat.id}
@@ -210,18 +226,18 @@ export default function Header({
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="lg:hidden bg-card border-t border-border">
+        <div className="lg:hidden bg-card border-t border-border max-h-[min(70vh,28rem)] overflow-y-auto">
           <div className="px-4 py-3 border-b border-border">
             <div className="flex border border-border rounded-xl overflow-hidden">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && onSearchSubmit()}
+                onKeyDown={(e) => e.key === "Enter" && submitSearch()}
                 placeholder={t("nav.searchProducts")}
-                className="flex-1 px-3 py-2.5 text-sm outline-none bg-background"
+                className="flex-1 px-3 py-3 text-[16px] outline-none bg-background"
               />
-              <button onClick={onSearchSubmit} className="bg-primary text-white px-3">
+              <button onClick={submitSearch} className="bg-primary text-white min-w-11 px-3" aria-label={t("nav.search")}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
                 </svg>

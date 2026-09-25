@@ -199,11 +199,11 @@ export default function ProductForm() {
           </button>
         </div>
         {variants.map((row, i) => (
-          <div key={i} className="grid grid-cols-4 gap-2 mb-2">
-            <input placeholder="Colour" value={row.color} onChange={(e) => setVariants((p) => p.map((r, n) => n === i ? { ...r, color: e.target.value } : r))} className="h-10 px-2 bg-[#f7f1e7] border border-[#d8cfc0]" />
-            <input placeholder="Size" value={row.size} onChange={(e) => setVariants((p) => p.map((r, n) => n === i ? { ...r, size: e.target.value } : r))} className="h-10 px-2 bg-[#f7f1e7] border border-[#d8cfc0]" />
-            <input type="number" min={0} value={row.quantity} onChange={(e) => setVariants((p) => p.map((r, n) => n === i ? { ...r, quantity: Number(e.target.value) } : r))} className="h-10 px-2 bg-[#f7f1e7] border border-[#d8cfc0] tabular" />
-            <button type="button" onClick={() => setVariants((p) => p.filter((_, n) => n !== i))} className="text-[11px] text-[#9a3412]">Remove</button>
+          <div key={i} className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-2">
+            <input placeholder="Colour" value={row.color} onChange={(e) => setVariants((p) => p.map((r, n) => n === i ? { ...r, color: e.target.value } : r))} className="h-11 px-2 bg-[#f7f1e7] border border-[#d8cfc0] text-[16px] sm:text-[13px]" />
+            <input placeholder="Size" value={row.size} onChange={(e) => setVariants((p) => p.map((r, n) => n === i ? { ...r, size: e.target.value } : r))} className="h-11 px-2 bg-[#f7f1e7] border border-[#d8cfc0] text-[16px] sm:text-[13px]" />
+            <input type="number" min={0} value={row.quantity} onChange={(e) => setVariants((p) => p.map((r, n) => n === i ? { ...r, quantity: Number(e.target.value) } : r))} className="h-11 px-2 bg-[#f7f1e7] border border-[#d8cfc0] tabular text-[16px] sm:text-[13px]" />
+            <button type="button" onClick={() => setVariants((p) => p.filter((_, n) => n !== i))} className="min-h-11 text-[11px] text-[#9a3412]">Remove</button>
           </div>
         ))}
       </div>
