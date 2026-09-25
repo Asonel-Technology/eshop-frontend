@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useParams } from "react-router-dom";
 import type { Product, Category, CartItem } from "./data";
+import { isButcherCategory } from "./data";
 import { getPublicSettings, getFeaturedItems, getCategories, PublicSettings } from "./services/api";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
@@ -8,19 +9,52 @@ import Shop from "./pages/Shop";
 import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
 import MeatDepartment from "./pages/MeatDepartment";
+import Wishlist from "./pages/Wishlist";
 import AdminApp from "./pages/admin/AdminApp";
+import { useI18n } from "./i18n/LanguageContext";
+
+const CART_STORAGE_KEY = "blessingCart";
+const WISHLIST_STORAGE_KEY = "blessingWishlist";
+
+/** The cart is never persisted server-side, so a refresh would otherwise empty it. */
+function readStoredCart(): CartItem[] {
+  try {
+    const raw = localStorage.getItem(CART_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
 
 export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [wishlist, setWishlist] = useState<Set<string | number>>(new Set());
+  const [cartItems, setCartItems] = useState<CartItem[]>(readStoredCart);
+  const [wishlist, setWishlist] = useState<Set<string | number>>(() => {
+    try {
+      const raw = localStorage.getItem(WISHLIST_STORAGE_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return new Set(Array.isArray(parsed) ? parsed : []);
+    } catch {
+      return new Set();
+    }
+  });
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    localStorage.setItem(WISHLIST_STORAGE_KEY, JSON.stringify(Array.from(wishlist)));
+  }, [wishlist]);
+
+  useEffect(() => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const [apiCategories, setApiCategories] = useState<Category[]>([]);
   const [apiFeatured, setApiFeatured] = useState<Product[]>([]);
   const [settings, setSettings] = useState<PublicSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useI18n();
 
   useEffect(() => {
     async function loadInitialData() {
@@ -37,7 +71,7 @@ export default function App() {
         setApiCategories([...productCats, ...foodCats]);
       } catch (err) {
         console.error("Failed to load backend data:", err);
-        setError("Unable to connect to the store. Please try again.");
+        setError("load");
       } finally {
         setIsLoading(false);
       }
@@ -63,27 +97,30 @@ export default function App() {
             <line x1="12" y1="16" x2="12.01" y2="16"></line>
           </svg>
         </div>
-        <h2 className="font-serif text-xl font-bold mb-2">Something went wrong</h2>
-        <p className="text-muted-foreground text-sm mb-6 text-center">{error}</p>
+        <h2 className="font-serif text-xl font-bold mb-2">{t("app.errorTitle")}</h2>
+        <p className="text-muted-foreground text-sm mb-6 text-center">{t("app.error")}</p>
         <button
           onClick={() => window.location.reload()}
           className="bg-primary text-white font-bold text-[11px] tracking-wider uppercase px-6 py-3 rounded-xl hover:bg-secondary transition-colors"
         >
-          Try Again
+          {t("app.retry")}
         </button>
       </div>
     );
   }
 
-  function addToCart(product: Product, qty = 1, variant = "") {
+  function addToCart(product: Product, qty = 1, variant: { color?: string; size?: string } = {}) {
+    const color = variant.color || undefined;
+    const size = variant.size || undefined;
+
     setCartItems((prev) => {
-      const existIdx = prev.findIndex((i) => i.id === product.id && i.variant === variant);
+      const existIdx = prev.findIndex((i) => i.id === product.id && i.color === color && i.size === size);
       if (existIdx >= 0) {
         const next = [...prev];
         next[existIdx] = { ...next[existIdx], qty: next[existIdx].qty + qty };
         return next;
       }
-      return [...prev, { id: product.id, name: product.name, price: product.price, img: product.img, qty, variant }];
+      return [...prev, { id: product.id, name: product.name, price: product.price, img: product.img, qty, color, size }];
     });
     setCartOpen(true);
   }
@@ -146,31 +183,69 @@ export default function App() {
           />
         } />
 
-        <Route path="/category/meat" element={
-          <MeatDepartment
-            category={apiCategories.find(c => c.slug === "meat") || { id: "meat", name: "Meat", slug: "meat", count: 0 } as any}
+        <Route path="/wishlist" element={
+          <Wishlist
+            ids={wishlist}
             onAddToCart={addToCart}
             onWishlist={toggleWishlist}
-            wishlist={wishlist}
           />
         } />
 
         <Route path="/category/:slug" element={
-          <Shop
+          <CategorySwitch
+            categories={apiCategories}
             onAddToCart={addToCart}
             onWishlist={toggleWishlist}
             wishlist={wishlist}
           />
         } />
 
-        <Route path="/shop" element={
-          <Shop
-            onAddToCart={addToCart}
-            onWishlist={toggleWishlist}
-            wishlist={wishlist}
-          />
-        } />
+        {["/shop", "/deals", "/new", "/bestsellers", "/categories"].map((path) => (
+          <Route key={path} path={path} element={
+            <Shop
+              categories={apiCategories}
+              onAddToCart={addToCart}
+              onWishlist={toggleWishlist}
+              wishlist={wishlist}
+            />
+          } />
+        ))}
       </Route>
     </Routes>
+  );
+}
+
+function CategorySwitch({
+  categories,
+  onAddToCart,
+  onWishlist,
+  wishlist,
+}: {
+  categories: Category[];
+  onAddToCart: (p: Product, qty?: number, variant?: { color?: string; size?: string }) => void;
+  onWishlist: (id: string | number) => void;
+  wishlist: Set<string | number>;
+}) {
+  const { slug } = useParams();
+  const category = categories.find((c) => c.slug === slug);
+
+  if (category && isButcherCategory(category)) {
+    return (
+      <MeatDepartment
+        category={category}
+        onAddToCart={onAddToCart}
+        onWishlist={onWishlist}
+        wishlist={wishlist}
+      />
+    );
+  }
+
+  return (
+    <Shop
+      categories={categories}
+      onAddToCart={onAddToCart}
+      onWishlist={onWishlist}
+      wishlist={wishlist}
+    />
   );
 }

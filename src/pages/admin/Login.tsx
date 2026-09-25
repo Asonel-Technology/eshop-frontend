@@ -21,7 +21,7 @@ export default function AdminLogin({ onSuccess, onExit }: LoginProps) {
 
     try {
       const data = await adminLogin(email, password);
-      login(data.accessToken);
+      login(data.accessToken, data.refreshToken);
       onSuccess();
     } catch (err: any) {
       setError(err.message || "Invalid credentials");
@@ -31,12 +31,12 @@ export default function AdminLogin({ onSuccess, onExit }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F5F5] flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-sm border border-border p-8">
+    <div className="blessing-backoffice min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-[#f7f1e7] border border-[#d8cfc0] p-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="font-serif text-2xl font-bold text-foreground">Admin Portal</h1>
+          <h1 className="text-2xl">Order book</h1>
           <button onClick={onExit} className="text-[12px] font-bold text-muted-foreground hover:text-foreground">
-            &larr; BACK TO SHOP
+            Back to the shop
           </button>
         </div>
 
@@ -80,7 +80,7 @@ export default function AdminLogin({ onSuccess, onExit }: LoginProps) {
             disabled={loading}
             className="w-full h-12 bg-primary text-white font-bold text-[12px] tracking-widest uppercase rounded-xl hover:bg-secondary transition-colors disabled:opacity-50 mt-4"
           >
-            {loading ? "Authenticating..." : "Secure Login"}
+            {loading ? "Signing in…" : "Sign in"}
           </button>
         </form>
       </div>

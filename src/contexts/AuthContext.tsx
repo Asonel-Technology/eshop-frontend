@@ -1,27 +1,38 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {
+  clearTokens,
+  getAccessToken,
+  setSessionExpiredHandler,
+  storeTokens,
+} from '../services/authTokens';
 
 interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
-  login: (token: string) => void;
+  login: (accessToken: string, refreshToken?: string) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem('adminToken');
-  });
+  const [token, setToken] = useState<string | null>(() => getAccessToken());
 
-  const login = (newToken: string) => {
-    setToken(newToken);
-    localStorage.setItem('adminToken', newToken);
+  // When a refresh fails, the request layer expires the session; reflect that in the UI
+  // so the login screen appears instead of a wall of failed requests.
+  useEffect(() => {
+    setSessionExpiredHandler(() => setToken(null));
+    return () => setSessionExpiredHandler(null);
+  }, []);
+
+  const login = (accessToken: string, refreshToken?: string) => {
+    storeTokens(accessToken, refreshToken);
+    setToken(accessToken);
   };
 
   const logout = () => {
+    clearTokens();
     setToken(null);
-    localStorage.removeItem('adminToken');
   };
 
   return (

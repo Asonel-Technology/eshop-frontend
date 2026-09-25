@@ -20,7 +20,7 @@ export default function CategoriesManager() {
     if (!token) return;
     try {
       setLoading(true);
-      const data = await getAdminCategories(token);
+      const data = await getAdminCategories();
       setCategories(data);
     } catch (err: any) {
       setError(err.message);
@@ -40,7 +40,7 @@ export default function CategoriesManager() {
     if (!token || !newCatName) return;
     setLoadingAddCat(true);
     try {
-      await createAdminCategory(token, {
+      await createAdminCategory({
         name: newCatName,
         type: newCatType,
         slug: generateSlug(newCatName)
@@ -58,7 +58,7 @@ export default function CategoriesManager() {
     if (!token || !newSubcatName) return;
     setLoadingAddSubcat(true);
     try {
-      await createAdminSubcategory(token, {
+      await createAdminSubcategory({
         categoryId,
         name: newSubcatName,
         slug: generateSlug(newSubcatName)
@@ -76,7 +76,7 @@ export default function CategoriesManager() {
   const handleDeleteCategory = async (id: string) => {
     if (!token || !window.confirm("Are you sure? This will fail if there are any products attached to this category.")) return;
     try {
-      await deleteAdminCategory(token, id);
+      await deleteAdminCategory(id);
       loadCategories();
     } catch (err: any) {
       alert("Failed to delete: " + err.message);
@@ -86,7 +86,7 @@ export default function CategoriesManager() {
   const handleDeleteSubcategory = async (id: string) => {
     if (!token || !window.confirm("Are you sure? This will fail if there are any products attached to this subcategory.")) return;
     try {
-      await deleteAdminSubcategory(token, id);
+      await deleteAdminSubcategory(id);
       loadCategories();
     } catch (err: any) {
       alert("Failed to delete: " + err.message);
@@ -102,16 +102,16 @@ export default function CategoriesManager() {
       {error && <div className="bg-red-50 text-red-600 p-4 rounded-xl">{error}</div>}
 
       <div className="bg-white border border-border rounded-2xl p-6 shadow-sm">
-        <h3 className="font-serif text-lg font-bold mb-4">Add New Category</h3>
+        <h3 className="font-serif text-lg font-bold mb-4">Add category</h3>
         <form onSubmit={handleAddCategory} className="flex gap-4 items-end">
           <div className="flex-1">
-            <label className="block text-[11px] font-bold tracking-wider uppercase text-muted-foreground mb-1.5">Category Name</label>
+            <label className="block text-[11px] font-bold tracking-wider uppercase text-muted-foreground mb-1.5">Name</label>
             <input
               type="text"
               required
               value={newCatName}
               onChange={(e) => setNewCatName(e.target.value)}
-              placeholder="e.g. Meat"
+              placeholder="e.g. Body oils"
               className="w-full h-10 px-3 rounded-lg border border-border focus:border-primary outline-none text-[13px]"
             />
           </div>
@@ -122,8 +122,8 @@ export default function CategoriesManager() {
               onChange={(e) => setNewCatType(e.target.value)}
               className="w-full h-10 px-3 rounded-lg border border-border focus:border-primary outline-none text-[13px]"
             >
-              <option value="PRODUCT">Product</option>
-              <option value="FOOD">Food/Grocery</option>
+              <option value="PRODUCT">Product (clothes, oils, kitchen…)</option>
+              <option value="FOOD">Butcher</option>
             </select>
           </div>
           <button
@@ -131,7 +131,7 @@ export default function CategoriesManager() {
             disabled={loadingAddCat || !newCatName}
             className="h-10 px-6 bg-primary text-white font-bold text-[11px] tracking-wider uppercase rounded-lg hover:bg-secondary disabled:opacity-50 transition-colors"
           >
-            Add Category
+            Add
           </button>
         </form>
       </div>
@@ -209,7 +209,7 @@ export default function CategoriesManager() {
                   ))}
                 </div>
               ) : (
-                <p className="text-[12px] text-muted-foreground italic">No subcategories. Add some cuts or types!</p>
+                <p className="text-[12px] text-muted-foreground">No subcategories.</p>
               )}
             </div>
           </div>
@@ -217,7 +217,7 @@ export default function CategoriesManager() {
 
         {categories.length === 0 && !loading && (
           <div className="py-12 text-center text-muted-foreground bg-white border border-border rounded-2xl">
-            No categories found. Create "Meat" to get started!
+            No categories.
           </div>
         )}
       </div>

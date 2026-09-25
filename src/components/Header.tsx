@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import type { Category } from "../data";
+import { useI18n } from "../i18n/LanguageContext";
+import LangSwitch from "./LangSwitch";
 
 interface HeaderProps {
   cartCount: number;
@@ -22,6 +24,7 @@ export default function Header({
   categories = [],
 }: HeaderProps) {
   const navigate = useNavigate();
+  const { t, catalog } = useI18n();
   const [megaOpen, setMegaOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -36,13 +39,14 @@ export default function Header({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const popularSearches = ["Fresh Chicken", "Sneakers", "Wireless Earbuds", "Chef Knife", "Smart Watch", "Yoga Mat"];
+  const popularSearches = categories.slice(0, 6).map((c) => c.name);
 
   return (
     <header className="sticky top-0 z-50 bg-background shadow-sm shadow-black/5">
       {/* Announcement bar */}
-      <div className="bg-secondary text-secondary-foreground text-center py-2 px-4 text-[10px] font-bold tracking-[0.2em] uppercase">
-        Fast Delivery &nbsp;·&nbsp; Secure Payment &nbsp;·&nbsp; Shop Across Rwanda
+      <div className="bg-secondary text-secondary-foreground relative py-2 px-4 text-[10px] font-bold tracking-[0.2em] uppercase">
+        <p className="text-center pr-16 sm:pr-0">{t("bar.announce")}</p>
+        <LangSwitch className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-foreground" />
       </div>
 
       {/* Main header */}
@@ -54,7 +58,7 @@ export default function Header({
             className="shrink-0 flex flex-col leading-none"
           >
             <span className="font-serif text-2xl font-bold tracking-tight text-foreground">Blessing</span>
-            <span className="text-[8px] tracking-[0.2em] uppercase text-primary font-bold hidden sm:block">Your Online Marketplace</span>
+            <span className="text-[8px] tracking-[0.2em] uppercase text-primary font-bold hidden sm:block">{t("brand.tagline")}</span>
           </Link>
 
           {/* Search — desktop */}
@@ -68,7 +72,7 @@ export default function Header({
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setTimeout(() => setSearchFocused(false), 200)}
                 onKeyDown={(e) => e.key === "Enter" && onSearchSubmit()}
-                placeholder="Search products, categories and brands..."
+                placeholder={t("nav.searchPlaceholder")}
                 className="flex-1 px-4 py-2.5 text-[13px] outline-none bg-background"
               />
               <button
@@ -78,14 +82,14 @@ export default function Header({
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
                 </svg>
-                <span className="text-[11px] font-bold tracking-wider uppercase hidden lg:block">Search</span>
+                <span className="text-[11px] font-bold tracking-wider uppercase hidden lg:block">{t("nav.search")}</span>
               </button>
             </div>
 
             {/* Search dropdown */}
-            {searchFocused && (
+            {searchFocused && popularSearches.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-xl shadow-black/12 py-3 z-50">
-                <p className="px-4 py-1 text-[10px] font-bold tracking-wider uppercase text-muted-foreground">Popular Searches</p>
+                <p className="px-4 py-1 text-[10px] font-bold tracking-wider uppercase text-muted-foreground">{t("nav.categories")}</p>
                 {popularSearches.map((s) => (
                   <button
                     key={s}
@@ -105,20 +109,24 @@ export default function Header({
           {/* Right actions */}
           <div className="flex items-center gap-1 ml-auto md:ml-0">
             {/* Mobile search */}
-            <button className="md:hidden p-2.5 hover:text-primary transition-colors rounded-lg hover:bg-muted">
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="md:hidden p-2.5 hover:text-primary transition-colors rounded-lg hover:bg-muted"
+              aria-label={t("nav.search")}
+            >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
             </button>
 
-            <button className="hidden sm:flex p-2.5 hover:text-primary transition-colors rounded-lg hover:bg-muted relative">
+            <Link to="/wishlist" className="hidden sm:flex p-2.5 hover:text-primary transition-colors rounded-lg hover:bg-muted relative" aria-label={t("home.savedItems")}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
               {wishlistCount > 0 && (
                 <span className="absolute top-0.5 right-0.5 w-4 h-4 bg-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center">{wishlistCount}</span>
               )}
-            </button>
+            </Link>
 
             <button
               onClick={onCartOpen}
@@ -156,7 +164,7 @@ export default function Header({
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="18" x2="21" y2="18" />
               </svg>
-              Categories
+              {t("nav.categories")}
             </button>
 
             {megaOpen && (
@@ -172,8 +180,10 @@ export default function Header({
                       <img src={cat.img} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold leading-tight">{cat.name}</p>
-                      <p className="text-[9px] text-muted-foreground">{cat.count}+ items</p>
+                      <p className="text-[11px] font-semibold leading-tight">{catalog(cat.slug, cat.name)}</p>
+                      {typeof cat.count === "number" && cat.count > 0 && (
+                        <p className="text-[9px] text-muted-foreground">{t(cat.count === 1 ? "shop.itemOne" : "shop.itemMany", { n: cat.count })}</p>
+                      )}
                     </div>
                   </Link>
                 ))}
@@ -182,10 +192,10 @@ export default function Header({
           </div>
 
           {[
-            { label: "Home", page: "/" },
-            { label: "Deals 🔥", page: "/deals" },
-            { label: "New Arrivals", page: "/new" },
-            { label: "Best Sellers", page: "/bestsellers" },
+            { label: t("nav.home"), page: "/" },
+            { label: t("nav.offer"), page: "/deals" },
+            { label: t("nav.new"), page: "/new" },
+            { label: t("nav.bestsellers"), page: "/bestsellers" },
           ].map((link) => (
             <Link
               key={link.label}
@@ -208,7 +218,7 @@ export default function Header({
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && onSearchSubmit()}
-                placeholder="Search products..."
+                placeholder={t("nav.searchProducts")}
                 className="flex-1 px-3 py-2.5 text-sm outline-none bg-background"
               />
               <button onClick={onSearchSubmit} className="bg-primary text-white px-3">
@@ -219,11 +229,11 @@ export default function Header({
             </div>
           </div>
           {[
-            { label: "Home", page: "/" },
-            { label: "All Categories", page: "/categories" },
-            { label: "Deals 🔥", page: "/deals" },
-            { label: "New Arrivals", page: "/new" },
-            { label: "Best Sellers", page: "/bestsellers" },
+            { label: t("nav.home"), page: "/" },
+            { label: t("nav.allCategories"), page: "/categories" },
+            { label: t("nav.offer"), page: "/deals" },
+            { label: t("nav.new"), page: "/new" },
+            { label: t("nav.bestsellers"), page: "/bestsellers" },
           ].map((link) => (
             <Link
               key={link.label}
