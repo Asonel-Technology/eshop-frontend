@@ -67,7 +67,7 @@ export default function App() {
           getCategories("FOOD")
         ]);
         setSettings(settingsData);
-        setApiFeatured([...featuredData.products, ...featuredData.foods]);
+        setApiFeatured(featuredData.products);
         setApiCategories([...productCats, ...foodCats]);
       } catch (err) {
         console.error("Failed to load backend data:", err);
@@ -120,7 +120,7 @@ export default function App() {
         next[existIdx] = { ...next[existIdx], qty: next[existIdx].qty + qty };
         return next;
       }
-      return [...prev, { id: product.id, name: product.name, price: product.price, img: product.img, qty, color, size }];
+      return [...prev, { id: product.id, name: product.name, price: product.price, img: product.img, qty, color, size, type: product.type, unit: product.unit }];
     });
     setCartOpen(true);
   }

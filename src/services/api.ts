@@ -54,6 +54,8 @@ const mapItem = (item: any): Product => ({
   hasColors: item.hasColors,
   hasSizes: item.hasSizes,
   variants: item.variants || [],
+  type: item.type,
+  unit: item.unit,
 });
 
 export async function getFeaturedItems() {

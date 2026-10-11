@@ -70,7 +70,7 @@ export const en = {
   "shop.retry": "Try again",
 
   "butcher.title": "The Butcher",
-  "butcher.sub": "Beef, chicken, goat, pork. Pick a cut and we prepare it for delivery.",
+  "butcher.sub": "Beef, chicken, goat, pork, fish. Price is per kg. Pick a cut and we prepare it for delivery.",
   "butcher.choose": "Choose your cut",
   "butcher.noCuts": "No cuts listed.",
   "butcher.allCuts": "All cuts",
@@ -96,6 +96,7 @@ export const en = {
   "product.size": "Size",
   "product.select": "Select",
   "product.qty": "Quantity",
+  "product.qtyUnit": "{unit}",
   "product.addBag": "Add to bag",
   "product.selectOptions": "Select options",
   "product.payHint": "Pay with MoMo. Delivery is calculated at checkout.",
@@ -269,7 +270,7 @@ export const rw: Record<MsgKey, string> = {
   "shop.retry": "Ongera ugerageze",
 
   "butcher.title": "Inyama",
-  "butcher.sub": "Inka, inkoko, ihene, ingurube. Hitamo, tuzitegura, tuzikugezeho.",
+  "butcher.sub": "Inka, inkoko, ihene, ingurube, ifi. Igiciro ni kuri kg. Hitamo, tuzitegura, tuzikugezeho.",
   "butcher.choose": "Hitamo inyama",
   "butcher.noCuts": "Nta nyama zanditswe.",
   "butcher.allCuts": "Inyama zose",
@@ -295,6 +296,7 @@ export const rw: Record<MsgKey, string> = {
   "product.size": "Ingano",
   "product.select": "Hitamo",
   "product.qty": "Umubare",
+  "product.qtyUnit": "{unit}",
   "product.addBag": "Shyira mu gasaho",
   "product.selectOptions": "Hitamo uburyo",
   "product.payHint": "Wishyure na MoMo. Ikiguzi cyo kohereza kigaragara iyo wishyura.",

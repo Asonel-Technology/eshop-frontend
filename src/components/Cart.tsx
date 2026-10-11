@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import type { CartItem } from "../data";
-import { formatRWF, variantLabel } from "../data";
+import { formatRWF, formatItemPrice, variantLabel } from "../data";
 import { useI18n } from "../i18n/LanguageContext";
 
 interface CartProps {
@@ -69,7 +69,7 @@ export default function Cart({ items, onClose, onRemove, onUpdateQty, onCheckout
                   <div className="flex-1 min-w-0">
                     <p className="text-[13px] font-semibold leading-snug line-clamp-2">{item.name}</p>
                     {variantLabel(item) && <p className="text-[10px] text-muted-foreground mt-0.5">{variantLabel(item)}</p>}
-                    <p className="text-[13px] font-bold text-primary mt-1">{formatRWF(item.price)}</p>
+                    <p className="text-[13px] font-bold text-primary mt-1">{formatItemPrice(item.price, item)}</p>
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     <button

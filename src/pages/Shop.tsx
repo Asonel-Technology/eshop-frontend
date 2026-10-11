@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate, Link, useSearchParams } from "react-router-dom";
 import type { Product, Category } from "../data";
+import { isButcherCategory } from "../data";
 import { getItems, type GetItemsParams } from "../services/api";
 import ProductCard from "../components/ProductCard";
 import { useI18n } from "../i18n/LanguageContext";
@@ -52,6 +53,7 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
       setError(null);
       try {
         const query: GetItemsParams = {};
+        if (pageId !== "category") query.type = "PRODUCT";
         if (activeCategory !== "all") query.categorySlug = activeCategory;
         if (activeSubcategory !== "all") query.subcategorySlug = activeSubcategory;
         const querySearch = searchParams.get("q");
@@ -123,9 +125,9 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
       )}
 
       {pageId === "categories" ? (
-        categories.length > 0 ? (
+        categories.filter((c) => !isButcherCategory(c)).length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {categories.map((cat) => (
+            {categories.filter((c) => !isButcherCategory(c)).map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => navigate(`/category/${cat.slug}`)}

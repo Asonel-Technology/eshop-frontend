@@ -8,6 +8,8 @@
   color?: string;
   size?: string;
   emoji?: string;
+  type?: "PRODUCT" | "FOOD";
+  unit?: string;
 }
 
 /** Human-readable variant label, e.g. "Red / XL". Display only - never sent to the API. */
@@ -45,6 +47,8 @@ export interface Product {
   isNew?: boolean;
   isFeatured?: boolean;
   isDeal?: boolean;
+  type?: "PRODUCT" | "FOOD";
+  unit?: string;
 }
 
 export interface Subcategory {
@@ -74,6 +78,26 @@ export function isButcherCategory(category?: Pick<Category, "type" | "slug"> | n
   if (!category) return false;
   if (category.slug === "butcher" || category.slug === "meat") return true;
   return category.type === "FOOD";
+}
+
+export function isButcherItem(item?: { type?: string; categorySlug?: string } | null) {
+  if (!item) return false;
+  if (item.type === "FOOD") return true;
+  return item.categorySlug === "butcher" || item.categorySlug === "meat";
+}
+
+/** Backend `unit` for FOOD (kg, g, pcs, l). Meat defaults to kg. */
+export function itemUnit(item?: { type?: string; unit?: string | null; categorySlug?: string } | null) {
+  if (!item) return undefined;
+  if (item.unit) return item.unit;
+  if (isButcherItem(item)) return "kg";
+  return undefined;
+}
+
+export function formatItemPrice(n: number, item?: { type?: string; unit?: string | null; categorySlug?: string } | null) {
+  const money = formatRWF(n);
+  const unit = itemUnit(item);
+  return unit ? `${money} / ${unit}` : money;
 }
 
 /** Accepts 07xxxxxxxx, 7xxxxxxxx, and +2507xxxxxxxx. Prefixes are not frozen. */

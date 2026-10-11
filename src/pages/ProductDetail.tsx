@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import type { Product } from "../data";
-import { formatRWF, discountPct } from "../data";
+import { formatRWF, formatItemPrice, itemUnit, discountPct } from "../data";
 import ProductCard from "../components/ProductCard";
 import { getItem, getItems } from "../services/api";
 import { useI18n } from "../i18n/LanguageContext";
@@ -175,7 +175,7 @@ export default function ProductDetail({ onAddToCart, onWishlist, wishlist }: Pro
               </div>
 
               <div className="flex items-end gap-3 mb-6 pb-6 border-b border-border">
-                <p className="font-serif text-3xl font-bold text-foreground">{formatRWF(product.price)}</p>
+                <p className="font-serif text-3xl font-bold text-foreground">{formatItemPrice(product.price, product)}</p>
                 {product.originalPrice && (
                   <>
                     <p className="text-muted-foreground text-base line-through mb-0.5">{formatRWF(product.originalPrice)}</p>
@@ -210,7 +210,7 @@ export default function ProductDetail({ onAddToCart, onWishlist, wishlist }: Pro
               ))}
 
               <div className="flex items-center gap-4 mb-6">
-                <p className="text-[12px] font-semibold">{t("product.qty")}</p>
+                <p className="text-[12px] font-semibold">{itemUnit(product) ? t("product.qtyUnit", { unit: itemUnit(product)! }) : t("product.qty")}</p>
                 <div className="flex items-center border border-border rounded-xl overflow-hidden">
                   <button onClick={() => setQty(Math.max(1, qty - 1))} className="w-11 h-11 flex items-center justify-center hover:bg-muted font-bold text-lg" aria-label="−">−</button>
                   <span className="w-12 text-center font-semibold text-[14px]">{qty}</span>

@@ -78,7 +78,7 @@ export default function ProductsManager() {
                   {item.subcategory?.name ? ` · ${item.subcategory.name}` : ""}
                 </p>
               </div>
-              <p className="tabular text-[13px] hidden sm:block">{formatRWF(item.price)}</p>
+              <p className="tabular text-[13px] hidden sm:block">{item.type === "FOOD" ? `${formatRWF(item.price)} / ${item.unit || "kg"}` : formatRWF(item.price)}</p>
               <p className="tabular text-[13px] w-10 text-right">{stockQty(item)}</p>
               <button
                 onClick={() => remove(item.id, item.name)}

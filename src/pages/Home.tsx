@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import type { Product, Category } from "../data";
-import { isButcherCategory } from "../data";
+import { isButcherCategory, isButcherItem } from "../data";
 import ProductCard from "../components/ProductCard";
 import { useI18n } from "../i18n/LanguageContext";
 
@@ -32,15 +32,17 @@ export default function Home({ categories, featuredItems, onAddToCart, onWishlis
   const navigate = useNavigate();
   const { t, catalog } = useI18n();
   const butcher = categories.find((c) => isButcherCategory(c));
-  const deals = featuredItems.filter((p) => p.originalPrice && p.originalPrice > p.price);
-  const featured = featuredItems.slice(0, 8);
+  const shopCategories = categories.filter((c) => !isButcherCategory(c));
+  const shopItems = featuredItems.filter((p) => !isButcherItem(p));
+  const deals = shopItems.filter((p) => p.originalPrice && p.originalPrice > p.price);
+  const featured = shopItems.slice(0, 8);
 
-  const catPromos = categories
+  const catPromos = shopCategories
     .map((cat) => ({
       id: cat.slug,
       heading: cat.name,
       img: cat.imageUrl || cat.img,
-      products: featuredItems.filter((p) => String(p.categoryId) === String(cat.id)).slice(0, 3),
+      products: shopItems.filter((p) => String(p.categoryId) === String(cat.id)).slice(0, 3),
     }))
     .filter((promo) => promo.products.length >= 3)
     .slice(0, 3);
@@ -75,9 +77,9 @@ export default function Home({ categories, featuredItems, onAddToCart, onWishlis
             </div>
           </div>
 
-          {categories.length > 0 && (
+          {shopCategories.length > 0 && (
             <div className="hidden lg:grid grid-cols-2 gap-3">
-              {categories.slice(0, 4).map((cat) => (
+              {shopCategories.slice(0, 4).map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => navigate(`/category/${cat.slug}`)}
@@ -97,11 +99,11 @@ export default function Home({ categories, featuredItems, onAddToCart, onWishlis
         </div>
       </section>
 
-      {categories.length > 0 && (
+      {shopCategories.length > 0 && (
         <section className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6">
           <SectionHeader title={t("home.shopByCategory")} cta={t("nav.allCategories")} onCta={() => navigate("/categories")} />
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {categories.slice(0, 4).map((cat) => (
+            {shopCategories.slice(0, 4).map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => navigate(`/category/${cat.slug}`)}
@@ -241,13 +243,20 @@ export default function Home({ categories, featuredItems, onAddToCart, onWishlis
             <div>
               <h4 className="text-[9px] tracking-[0.3em] uppercase font-bold text-white/30 mb-4">{t("home.shop")}</h4>
               <ul className="flex flex-col gap-2.5">
-                {categories.slice(0, 6).map((cat) => (
+                {shopCategories.slice(0, 6).map((cat) => (
                   <li key={cat.id}>
                     <button onClick={() => navigate(`/category/${cat.slug}`)} className="text-[12px] text-white/50 hover:text-white transition-colors">
                       {catalog(cat.slug, cat.name)}
                     </button>
                   </li>
                 ))}
+                {butcher && (
+                  <li>
+                    <button onClick={() => navigate(`/category/${butcher.slug}`)} className="text-[12px] text-white/50 hover:text-white transition-colors">
+                      {t("home.butcher")}
+                    </button>
+                  </li>
+                )}
                 <li>
                   <button onClick={() => navigate("/shop")} className="text-[12px] text-white/50 hover:text-white transition-colors">
                     {t("home.allProducts")}

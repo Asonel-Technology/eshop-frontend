@@ -33,7 +33,7 @@ export default function MeatDepartment({ category, onAddToCart, onWishlist, wish
       setLoading(true);
       setError(null);
       try {
-        const query: { categorySlug: string; subcategorySlug?: string } = { categorySlug: category.slug };
+        const query: { type: "FOOD"; categorySlug: string; subcategorySlug?: string } = { type: "FOOD", categorySlug: category.slug };
         if (activeSubcat) query.subcategorySlug = activeSubcat;
         const data = await getItems(query);
         setProducts(data.items as Product[]);

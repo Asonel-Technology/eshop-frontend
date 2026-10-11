@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import type { Category } from "../data";
+import { isButcherCategory } from "../data";
 import { useI18n } from "../i18n/LanguageContext";
 import LangSwitch from "./LangSwitch";
 
@@ -49,7 +50,9 @@ export default function Header({
     setMenuOpen(false);
   }
 
-  const popularSearches = categories.slice(0, 6).map((c) => c.name);
+  const shopCategories = categories.filter((c) => !isButcherCategory(c));
+  const butcher = categories.find((c) => isButcherCategory(c));
+  const popularSearches = shopCategories.slice(0, 6).map((c) => c.name);
 
   return (
     <header className="sticky top-0 z-50 bg-background shadow-sm shadow-black/5">
@@ -185,7 +188,7 @@ export default function Header({
 
             {megaOpen && (
               <div className="absolute top-full left-0 mt-0 w-[min(42rem,calc(100vw-2rem))] bg-card border border-border shadow-2xl shadow-black/15 rounded-b-2xl py-6 px-6 z-50 grid grid-cols-2 xl:grid-cols-4 gap-4">
-                {categories.map((cat) => (
+                {shopCategories.map((cat) => (
                   <Link
                     key={cat.id}
                     to={`/category/${cat.slug}`}
@@ -207,6 +210,14 @@ export default function Header({
             )}
           </div>
 
+          {butcher && (
+            <Link
+              to={`/category/${butcher.slug}`}
+              className="text-[11px] font-semibold tracking-widest uppercase text-muted-foreground hover:text-foreground h-10 px-1 border-b-2 border-transparent hover:border-foreground transition-all flex items-center"
+            >
+              {t("home.butcher")}
+            </Link>
+          )}
           {[
             { label: t("nav.home"), page: "/" },
             { label: t("nav.offer"), page: "/deals" },
@@ -246,6 +257,7 @@ export default function Header({
           </div>
           {[
             { label: t("nav.home"), page: "/" },
+            ...(butcher ? [{ label: t("home.butcher"), page: `/category/${butcher.slug}` }] : []),
             { label: t("nav.allCategories"), page: "/categories" },
             { label: t("nav.offer"), page: "/deals" },
             { label: t("nav.new"), page: "/new" },

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import type { Product } from "../data";
-import { formatRWF, discountPct } from "../data";
+import { formatRWF, formatItemPrice, discountPct } from "../data";
 import { useI18n } from "../i18n/LanguageContext";
 
 function IconHeart({ filled = false }: { filled?: boolean }) {
@@ -83,7 +83,7 @@ export default function ProductCard({ product, onAddToCart, onWishlist, wishlist
 
         <div className="flex items-end justify-between mt-auto pt-2 border-t border-border">
           <div>
-            <p className="text-[14px] font-bold leading-none">{formatRWF(product.price)}</p>
+            <p className="text-[14px] font-bold leading-none">{formatItemPrice(product.price, product)}</p>
             {product.originalPrice && (
               <p className="text-[10px] text-muted-foreground line-through mt-0.5">{formatRWF(product.originalPrice)}</p>
             )}

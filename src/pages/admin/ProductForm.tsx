@@ -27,6 +27,7 @@ export default function ProductForm() {
   const [originalPrice, setOriginalPrice] = useState("");
   const [quantity, setQuantity] = useState("0");
   const [isFeatured, setIsFeatured] = useState(false);
+  const [unit, setUnit] = useState("kg");
   const [categoryId, setCategoryId] = useState("");
   const [subcategoryId, setSubcategoryId] = useState("");
   const [variants, setVariants] = useState<VariantRow[]>([]);
@@ -48,7 +49,8 @@ export default function ProductForm() {
         setPrice(String(item.price ?? ""));
         setOriginalPrice(item.originalPrice != null ? String(item.originalPrice) : "");
         setQuantity(String(item.quantity ?? 0));
-        setIsFeatured(!!item.isFeatured);
+        setIsFeatured(item.type === "FOOD" ? false : !!item.isFeatured);
+        setUnit(item.unit || (item.type === "FOOD" ? "kg" : ""));
         setCategoryId(item.categoryId);
         setSubcategoryId(item.subcategoryId || "");
         setExistingImages(item.images || []);
@@ -89,7 +91,8 @@ export default function ProductForm() {
       form.append("price", price);
       form.append("originalPrice", originalPrice);
       form.append("quantity", quantity);
-      form.append("isFeatured", String(isFeatured));
+      form.append("isFeatured", type === "FOOD" ? "false" : String(isFeatured));
+      if (type === "FOOD") form.append("unit", unit || "kg");
       form.append("categoryId", categoryId);
       if (subcategoryId) form.append("subcategoryId", subcategoryId);
       if (variants.length > 0) {
@@ -128,7 +131,7 @@ export default function ProductForm() {
           <button
             key={value}
             type="button"
-            onClick={() => { setType(value); setCategoryId(""); setSubcategoryId(""); }}
+            onClick={() => { setType(value); setCategoryId(""); setSubcategoryId(""); setUnit(value === "FOOD" ? "kg" : ""); if (value === "FOOD") setIsFeatured(false); }}
             className={`px-3 py-1.5 text-[12px] border ${type === value ? "bg-[#1c1915] text-[#efe8dc] border-[#1c1915]" : "border-[#d8cfc0]"}`}
           >
             {value === "FOOD" ? "Butcher" : "Product"}
@@ -143,7 +146,7 @@ export default function ProductForm() {
 
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
-          <span className="block text-[12px] mb-1">Price (RWF)</span>
+          <span className="block text-[12px] mb-1">{type === "FOOD" ? `Price per ${unit || "kg"} (RWF)` : "Price (RWF)"}</span>
           <input type="number" min={0} value={price} onChange={(e) => setPrice(e.target.value)} required className="w-full h-11 px-3 bg-[#f7f1e7] border border-[#d8cfc0] tabular" />
         </label>
         <label className="block">
@@ -151,6 +154,18 @@ export default function ProductForm() {
           <input type="number" min={0} value={originalPrice} onChange={(e) => setOriginalPrice(e.target.value)} className="w-full h-11 px-3 bg-[#f7f1e7] border border-[#d8cfc0] tabular" />
         </label>
       </div>
+
+      {type === "FOOD" && (
+        <label className="block">
+          <span className="block text-[12px] mb-1">Sold by</span>
+          <select value={unit} onChange={(e) => setUnit(e.target.value)} className="w-full h-11 px-3 bg-[#f7f1e7] border border-[#d8cfc0]">
+            <option value="kg">kg</option>
+            <option value="g">g</option>
+            <option value="pcs">pcs</option>
+            <option value="l">l</option>
+          </select>
+        </label>
+      )}
 
       <label className="block">
         <span className="block text-[12px] mb-1">{type === "FOOD" ? "Butcher" : "Product category"}</span>
@@ -182,7 +197,7 @@ export default function ProductForm() {
 
       {variants.length === 0 && (
         <label className="block">
-          <span className="block text-[12px] mb-1">Quantity</span>
+          <span className="block text-[12px] mb-1">{type === "FOOD" ? `Stock (${unit || "kg"})` : "Quantity"}</span>
           <input type="number" min={0} value={quantity} onChange={(e) => setQuantity(e.target.value)} className="w-full h-11 px-3 bg-[#f7f1e7] border border-[#d8cfc0] tabular" />
         </label>
       )}
@@ -208,10 +223,12 @@ export default function ProductForm() {
         ))}
       </div>
 
-      <label className="flex items-center gap-2 text-[13px]">
-        <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} />
-        Show on the home page
-      </label>
+      {type === "PRODUCT" && (
+        <label className="flex items-center gap-2 text-[13px]">
+          <input type="checkbox" checked={isFeatured} onChange={(e) => setIsFeatured(e.target.checked)} />
+          Show on the home page
+        </label>
+      )}
 
       {existingImages.length > 0 && (
         <div className="flex gap-2 flex-wrap">
