@@ -3,7 +3,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Header from "./Header";
 import Cart from "./Cart";
 import ChatWidget from "./ChatWidget";
-import type { CartItem, Category } from "../data";
+import type { CartItem, Category, Product } from "../data";
 import { useI18n } from "../i18n/LanguageContext";
 
 interface LayoutProps {
@@ -16,6 +16,7 @@ interface LayoutProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   categories?: Category[];
+  shopProducts?: Product[];
 }
 
 export default function Layout({
@@ -27,7 +28,8 @@ export default function Layout({
   updateQty,
   searchQuery,
   setSearchQuery,
-  categories = []
+  categories = [],
+  shopProducts = [],
 }: LayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -63,6 +65,7 @@ export default function Layout({
         onSearchChange={setSearchQuery}
         onSearchSubmit={handleSearchSubmit}
         categories={categories}
+        shopProducts={shopProducts}
       />
 
       <main>

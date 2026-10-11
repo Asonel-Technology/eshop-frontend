@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, useParams } from "react-router-dom";
 import type { Product, Category, CartItem } from "./data";
-import { isButcherCategory } from "./data";
-import { getPublicSettings, getFeaturedItems, getCategories, PublicSettings } from "./services/api";
+import { isButcherCategory, isButcherItem } from "./data";
+import { getPublicSettings, getFeaturedItems, getCategories, getItems, PublicSettings } from "./services/api";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Shop from "./pages/Shop";
@@ -51,6 +51,7 @@ export default function App() {
 
   const [apiCategories, setApiCategories] = useState<Category[]>([]);
   const [apiFeatured, setApiFeatured] = useState<Product[]>([]);
+  const [shopProducts, setShopProducts] = useState<Product[]>([]);
   const [settings, setSettings] = useState<PublicSettings | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,14 +61,16 @@ export default function App() {
     async function loadInitialData() {
       try {
         setError(null);
-        const [settingsData, featuredData, productCats, foodCats] = await Promise.all([
+        const [settingsData, featuredData, productCats, foodCats, shopData] = await Promise.all([
           getPublicSettings(),
           getFeaturedItems(),
           getCategories("PRODUCT"),
-          getCategories("FOOD")
+          getCategories("FOOD"),
+          getItems({ type: "PRODUCT", pageSize: 80 }),
         ]);
         setSettings(settingsData);
-        setApiFeatured(featuredData.products);
+        setApiFeatured(featuredData.products.filter((p: Product) => !isButcherItem(p)));
+        setShopProducts(shopData.items.filter((p: Product) => !isButcherItem(p)));
         setApiCategories([...productCats, ...foodCats]);
       } catch (err) {
         console.error("Failed to load backend data:", err);
@@ -155,12 +158,14 @@ export default function App() {
           searchQuery={searchQuery} 
           setSearchQuery={setSearchQuery} 
           categories={apiCategories}
+          shopProducts={shopProducts}
         />
       }>
         <Route path="/" element={
           <Home
             categories={apiCategories}
             featuredItems={apiFeatured}
+            shopProducts={shopProducts}
             onAddToCart={addToCart}
             onWishlist={toggleWishlist}
             wishlist={wishlist}
@@ -194,6 +199,7 @@ export default function App() {
         <Route path="/category/:slug" element={
           <CategorySwitch
             categories={apiCategories}
+            shopProducts={shopProducts}
             onAddToCart={addToCart}
             onWishlist={toggleWishlist}
             wishlist={wishlist}
@@ -204,6 +210,7 @@ export default function App() {
           <Route key={path} path={path} element={
             <Shop
               categories={apiCategories}
+              shopProducts={shopProducts}
               onAddToCart={addToCart}
               onWishlist={toggleWishlist}
               wishlist={wishlist}
@@ -217,17 +224,21 @@ export default function App() {
 
 function CategorySwitch({
   categories,
+  shopProducts,
   onAddToCart,
   onWishlist,
   wishlist,
 }: {
   categories: Category[];
+  shopProducts: Product[];
   onAddToCart: (p: Product, qty?: number, variant?: { color?: string; size?: string }) => void;
   onWishlist: (id: string | number) => void;
   wishlist: Set<string | number>;
 }) {
   const { slug } = useParams();
-  const category = categories.find((c) => c.slug === slug);
+  const category =
+    categories.find((c) => c.slug === slug) ||
+    categories.find((c) => c.subcategories?.some((s) => s.slug === slug));
 
   if (category && isButcherCategory(category)) {
     return (
@@ -243,6 +254,7 @@ function CategorySwitch({
   return (
     <Shop
       categories={categories}
+      shopProducts={shopProducts}
       onAddToCart={onAddToCart}
       onWishlist={onWishlist}
       wishlist={wishlist}

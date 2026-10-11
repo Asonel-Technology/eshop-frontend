@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import type { Product, Category } from "../data";
-import { isButcherCategory, isButcherItem } from "../data";
+import { isButcherCategory, isButcherItem, shopBrowseTiles, tilePath } from "../data";
 import ProductCard from "../components/ProductCard";
 import { useI18n } from "../i18n/LanguageContext";
 
 interface HomeProps {
   categories: Category[];
   featuredItems: Product[];
+  shopProducts: Product[];
   onAddToCart: (p: Product) => void;
   onWishlist: (id: string | number) => void;
   wishlist: Set<string | number>;
@@ -28,20 +29,21 @@ function SectionHeader({ title, cta, onCta }: { title: string; cta?: string; onC
   );
 }
 
-export default function Home({ categories, featuredItems, onAddToCart, onWishlist, wishlist }: HomeProps) {
+export default function Home({ categories, featuredItems, shopProducts, onAddToCart, onWishlist, wishlist }: HomeProps) {
   const navigate = useNavigate();
   const { t, catalog } = useI18n();
   const butcher = categories.find((c) => isButcherCategory(c));
   const shopCategories = categories.filter((c) => !isButcherCategory(c));
-  const shopItems = featuredItems.filter((p) => !isButcherItem(p));
+  const shopItems = [...shopProducts, ...featuredItems].filter((p, i, all) => !isButcherItem(p) && all.findIndex((x) => String(x.id) === String(p.id)) === i);
   const deals = shopItems.filter((p) => p.originalPrice && p.originalPrice > p.price);
-  const featured = shopItems.slice(0, 8);
+  const featured = featuredItems.filter((p) => !isButcherItem(p)).slice(0, 8);
+  const browseTiles = shopBrowseTiles(categories, shopItems);
 
   const catPromos = shopCategories
     .map((cat) => ({
       id: cat.slug,
       heading: cat.name,
-      img: cat.imageUrl || cat.img,
+      img: browseTiles.find((tile) => tile.parentSlug === cat.slug && !tile.subSlug)?.img || cat.imageUrl,
       products: shopItems.filter((p) => String(p.categoryId) === String(cat.id)).slice(0, 3),
     }))
     .filter((promo) => promo.products.length >= 3)
@@ -77,21 +79,23 @@ export default function Home({ categories, featuredItems, onAddToCart, onWishlis
             </div>
           </div>
 
-          {shopCategories.length > 0 && (
+          {browseTiles.length > 0 && (
             <div className="hidden lg:grid grid-cols-2 gap-3">
-              {shopCategories.slice(0, 4).map((cat) => (
+              {browseTiles.slice(0, 4).map((tile) => (
                 <button
-                  key={cat.id}
-                  onClick={() => navigate(`/category/${cat.slug}`)}
-                  className="group relative rounded-xl overflow-hidden aspect-[4/3] flex flex-col justify-end p-3 text-left"
+                  key={tile.key}
+                  onClick={() => navigate(tilePath(tile))}
+                  className="group relative rounded-xl overflow-hidden aspect-[4/3] flex flex-col justify-end p-3 text-left bg-muted"
                 >
-                  <img
-                    src={cat.imageUrl || cat.img}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-400 group-hover:scale-105"
-                  />
+                  {tile.img && (
+                    <img
+                      src={tile.img}
+                      alt=""
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-400 group-hover:scale-105"
+                    />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                  <p className="relative z-10 text-white text-[12px] font-semibold">{catalog(cat.slug, cat.name)}</p>
+                  <p className="relative z-10 text-white text-[12px] font-semibold">{catalog(tile.slug, tile.label)}</p>
                 </button>
               ))}
             </div>
@@ -99,23 +103,25 @@ export default function Home({ categories, featuredItems, onAddToCart, onWishlis
         </div>
       </section>
 
-      {shopCategories.length > 0 && (
+      {browseTiles.length > 0 && (
         <section className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6">
           <SectionHeader title={t("home.shopByCategory")} cta={t("nav.allCategories")} onCta={() => navigate("/categories")} />
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {shopCategories.slice(0, 4).map((cat) => (
+            {browseTiles.slice(0, 8).map((tile) => (
               <button
-                key={cat.id}
-                onClick={() => navigate(`/category/${cat.slug}`)}
-                className="group relative rounded-xl overflow-hidden aspect-[4/3] flex flex-col justify-end text-left border border-border hover:border-primary transition-colors"
+                key={tile.key}
+                onClick={() => navigate(tilePath(tile))}
+                className="group relative rounded-xl overflow-hidden aspect-[4/3] flex flex-col justify-end text-left border border-border hover:border-primary transition-colors bg-muted"
               >
-                <img
-                  src={cat.imageUrl || cat.img}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-400 group-hover:scale-105"
-                />
+                {tile.img && (
+                  <img
+                    src={tile.img}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-400 group-hover:scale-105"
+                  />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                <p className="relative z-10 p-3.5 text-white text-[12px] font-semibold">{catalog(cat.slug, cat.name)}</p>
+                <p className="relative z-10 p-3.5 text-white text-[12px] font-semibold">{catalog(tile.slug, tile.label)}</p>
               </button>
             ))}
           </div>
@@ -243,10 +249,10 @@ export default function Home({ categories, featuredItems, onAddToCart, onWishlis
             <div>
               <h4 className="text-[9px] tracking-[0.3em] uppercase font-bold text-white/30 mb-4">{t("home.shop")}</h4>
               <ul className="flex flex-col gap-2.5">
-                {shopCategories.slice(0, 6).map((cat) => (
-                  <li key={cat.id}>
-                    <button onClick={() => navigate(`/category/${cat.slug}`)} className="text-[12px] text-white/50 hover:text-white transition-colors">
-                      {catalog(cat.slug, cat.name)}
+                {browseTiles.slice(0, 8).map((tile) => (
+                  <li key={tile.key}>
+                    <button onClick={() => navigate(tilePath(tile))} className="text-[12px] text-white/50 hover:text-white transition-colors">
+                      {catalog(tile.slug, tile.label)}
                     </button>
                   </li>
                 ))}

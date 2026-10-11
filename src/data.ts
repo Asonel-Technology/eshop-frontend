@@ -55,6 +55,7 @@ export interface Subcategory {
   id: string;
   name: string;
   slug: string;
+  imageUrl?: string;
 }
 
 export interface Category {
@@ -98,6 +99,62 @@ export function formatItemPrice(n: number, item?: { type?: string; unit?: string
   const money = formatRWF(n);
   const unit = itemUnit(item);
   return unit ? `${money} / ${unit}` : money;
+}
+
+export function shopCategoriesOnly(categories: Category[]) {
+  return categories.filter((c) => !isButcherCategory(c));
+}
+
+export function catalogFallbackImage(categories: Category[], products: Product[]) {
+  const fromCategory = shopCategoriesOnly(categories).find((c) => c.imageUrl)?.imageUrl;
+  if (fromCategory) return fromCategory;
+  return products.find((p) => !isButcherItem(p) && p.img)?.img || "";
+}
+
+export function categoryCover(
+  cat: Category,
+  products: Product[],
+  fallback = "",
+  sub?: Subcategory,
+) {
+  if (sub) {
+    const fromSub = products.find((p) => String(p.subcategoryId) === String(sub.id) && p.img);
+    if (fromSub?.img) return fromSub.img;
+  }
+  if (!sub && cat.imageUrl) return cat.imageUrl;
+  const fromCat = products.find((p) => String(p.categoryId) === String(cat.id) && p.img);
+  if (fromCat?.img) return fromCat.img;
+  if (cat.imageUrl) return cat.imageUrl;
+  return fallback;
+}
+
+export function shopBrowseTiles(categories: Category[], products: Product[]) {
+  const fallback = catalogFallbackImage(categories, products);
+  const tiles: { key: string; label: string; slug: string; parentSlug: string; subSlug?: string; img: string }[] = [];
+  for (const cat of shopCategoriesOnly(categories)) {
+    tiles.push({
+      key: cat.id,
+      label: cat.name,
+      slug: cat.slug,
+      parentSlug: cat.slug,
+      img: categoryCover(cat, products, fallback),
+    });
+    for (const sub of cat.subcategories || []) {
+      tiles.push({
+        key: sub.id,
+        label: sub.name,
+        slug: sub.slug,
+        parentSlug: cat.slug,
+        subSlug: sub.slug,
+        img: categoryCover(cat, products, fallback, sub),
+      });
+    }
+  }
+  return tiles;
+}
+
+export function tilePath(tile: { parentSlug: string; subSlug?: string }) {
+  return tile.subSlug ? `/category/${tile.parentSlug}?sub=${tile.subSlug}` : `/category/${tile.parentSlug}`;
 }
 
 /** Accepts 07xxxxxxxx, 7xxxxxxxx, and +2507xxxxxxxx. Prefixes are not frozen. */

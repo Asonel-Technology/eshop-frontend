@@ -21,8 +21,7 @@ export default function MeatDepartment({ category, onAddToCart, onWishlist, wish
   const [error, setError] = useState<string | null>(null);
 
   const cuts = category?.subcategories || [];
-  const heroImage = category.imageUrl || category.img ||
-    "https://images.unsplash.com/photo-1603048297172-c92544798d5e?q=80&w=2070&auto=format&fit=crop";
+  const heroImage = category.imageUrl || category.img || "";
 
   useEffect(() => {
     setActiveSubcat(category.subcategories?.[0]?.slug ?? null);
@@ -63,11 +62,13 @@ export default function MeatDepartment({ category, onAddToCart, onWishlist, wish
       <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-12">
         <div className="relative rounded-xl md:rounded-3xl overflow-hidden bg-foreground text-background min-h-[220px] md:h-[400px] flex items-center">
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent z-10" />
-          <img
-            src={heroImage}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay"
-          />
+          {heroImage && (
+            <img
+              src={heroImage}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay"
+            />
+          )}
           <div className="relative z-20 px-5 py-10 sm:px-8 md:px-16 max-w-2xl">
             <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-primary mb-3">Blessing</p>
             <h1 className="font-serif text-3xl sm:text-4xl md:text-6xl font-bold mb-3 md:mb-4 text-white">{t("butcher.title")}</h1>

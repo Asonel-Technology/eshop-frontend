@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import type { Category } from "../data";
-import { isButcherCategory } from "../data";
+import type { Category, Product } from "../data";
+import { isButcherCategory, shopBrowseTiles, tilePath } from "../data";
 import { useI18n } from "../i18n/LanguageContext";
 import LangSwitch from "./LangSwitch";
 
@@ -13,6 +13,7 @@ interface HeaderProps {
   onSearchChange: (q: string) => void;
   onSearchSubmit: () => void;
   categories?: Category[];
+  shopProducts?: Product[];
 }
 
 export default function Header({
@@ -23,6 +24,7 @@ export default function Header({
   onSearchChange,
   onSearchSubmit,
   categories = [],
+  shopProducts = [],
 }: HeaderProps) {
   const { pathname } = useLocation();
   const { t, catalog } = useI18n();
@@ -50,9 +52,9 @@ export default function Header({
     setMenuOpen(false);
   }
 
-  const shopCategories = categories.filter((c) => !isButcherCategory(c));
   const butcher = categories.find((c) => isButcherCategory(c));
-  const popularSearches = shopCategories.slice(0, 6).map((c) => c.name);
+  const shopTiles = shopBrowseTiles(categories, shopProducts);
+  const popularSearches = shopTiles.slice(0, 6).map((c) => c.label);
 
   return (
     <header className="sticky top-0 z-50 bg-background shadow-sm shadow-black/5">
@@ -188,21 +190,20 @@ export default function Header({
 
             {megaOpen && (
               <div className="absolute top-full left-0 mt-0 w-[min(42rem,calc(100vw-2rem))] bg-card border border-border shadow-2xl shadow-black/15 rounded-b-2xl py-6 px-6 z-50 grid grid-cols-2 xl:grid-cols-4 gap-4">
-                {shopCategories.map((cat) => (
+                {shopTiles.map((tile) => (
                   <Link
-                    key={cat.id}
-                    to={`/category/${cat.slug}`}
+                    key={tile.key}
+                    to={tilePath(tile)}
                     onClick={() => setMegaOpen(false)}
                     className="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-muted transition-colors text-center group"
                   >
                     <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted">
-                      <img src={cat.img} alt={cat.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                      {tile.img ? (
+                        <img src={tile.img} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                      ) : null}
                     </div>
                     <div>
-                      <p className="text-[11px] font-semibold leading-tight">{catalog(cat.slug, cat.name)}</p>
-                      {typeof cat.count === "number" && cat.count > 0 && (
-                        <p className="text-[9px] text-muted-foreground">{t(cat.count === 1 ? "shop.itemOne" : "shop.itemMany", { n: cat.count })}</p>
-                      )}
+                      <p className="text-[11px] font-semibold leading-tight">{catalog(tile.slug, tile.label)}</p>
                     </div>
                   </Link>
                 ))}

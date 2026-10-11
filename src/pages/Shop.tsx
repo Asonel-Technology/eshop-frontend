@@ -1,19 +1,20 @@
 import { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate, Link, useSearchParams } from "react-router-dom";
 import type { Product, Category } from "../data";
-import { isButcherCategory } from "../data";
+import { isButcherItem, shopBrowseTiles, tilePath } from "../data";
 import { getItems, type GetItemsParams } from "../services/api";
 import ProductCard from "../components/ProductCard";
 import { useI18n } from "../i18n/LanguageContext";
 
 interface ShopProps {
   categories?: Category[];
+  shopProducts?: Product[];
   onAddToCart: (p: Product) => void;
   onWishlist: (id: string | number) => void;
   wishlist: Set<string | number>;
 }
 
-export default function Shop({ categories = [], onAddToCart, onWishlist, wishlist }: ShopProps) {
+export default function Shop({ categories = [], shopProducts = [], onAddToCart, onWishlist, wishlist }: ShopProps) {
   const navigate = useNavigate();
   const { t, catalog } = useI18n();
   const location = useLocation();
@@ -28,7 +29,13 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
   else if (location.pathname.includes("/categories")) pageId = "categories";
   else if (location.pathname.includes("/category/")) pageId = "category";
 
-  const category = categories.find((c) => c.slug === slug);
+  const category =
+    categories.find((c) => c.slug === slug) ||
+    categories.find((c) => c.subcategories?.some((s) => s.slug === slug));
+  const subFromPath = category?.subcategories?.find((s) => s.slug === slug && category.slug !== slug);
+  const subFromQuery = searchParams.get("sub") || "";
+  const activeSubSlug = subFromPath?.slug || subFromQuery || "";
+  const browseTiles = shopBrowseTiles(categories, shopProducts);
 
   const [items, setItems] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
@@ -52,10 +59,11 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
       setLoading(true);
       setError(null);
       try {
-        const query: GetItemsParams = {};
-        if (pageId !== "category") query.type = "PRODUCT";
-        if (activeCategory !== "all") query.categorySlug = activeCategory;
-        if (activeSubcategory !== "all") query.subcategorySlug = activeSubcategory;
+        const query: GetItemsParams = { type: "PRODUCT" };
+        if (pageId === "category" && category) query.categorySlug = category.slug;
+        else if (activeCategory !== "all") query.categorySlug = activeCategory;
+        if (pageId === "category" && activeSubSlug) query.subcategorySlug = activeSubSlug;
+        else if (activeSubcategory !== "all") query.subcategorySlug = activeSubcategory;
         const querySearch = searchParams.get("q");
         if (querySearch) query.search = querySearch;
 
@@ -64,8 +72,16 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
         if (pageId === "bestsellers") query.sort = "bestselling";
 
         const data = await getItems(query);
-        setItems(data.items);
-        setTotal(data.total);
+        const onlyShop = data.items.filter((p) => {
+          if (isButcherItem(p)) return false;
+          if (pageId === "category" && category && String(p.categoryId) !== String(category.id)) return false;
+          if (pageId === "category" && activeSubSlug) {
+            return p.subcategory?.slug === activeSubSlug || String(p.subcategoryId) === String(category?.subcategories?.find((s) => s.slug === activeSubSlug)?.id);
+          }
+          return true;
+        });
+        setItems(onlyShop);
+        setTotal(onlyShop.length);
       } catch (err) {
         console.error("Failed to load shop items", err);
         setError("load");
@@ -74,7 +90,7 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
       }
     }
     loadShopItems();
-  }, [activeCategory, activeSubcategory, searchParams, pageId]);
+  }, [activeCategory, activeSubcategory, searchParams, pageId, category?.id, category?.slug, activeSubSlug]);
 
   const pageTitles: Record<string, string> = {
     shop: searchQuery ? t("shop.results", { q: searchQuery }) : t("shop.allProducts"),
@@ -105,11 +121,42 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
             <Link to="/" className="hover:text-foreground">{t("nav.home")}</Link>
             <span>/</span>
             <span className="text-foreground font-medium">{catalog(category.slug, category.name)}</span>
+            {activeSubSlug && (
+              <>
+                <span>/</span>
+                <span className="text-foreground font-medium">{catalog(activeSubSlug, category.subcategories?.find((s) => s.slug === activeSubSlug)?.name)}</span>
+              </>
+            )}
           </nav>
           <div className="mb-8">
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold">{catalog(category.slug, category.name)}</h1>
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold">
+              {activeSubSlug
+                ? catalog(activeSubSlug, category.subcategories?.find((s) => s.slug === activeSubSlug)?.name)
+                : catalog(category.slug, category.name)}
+            </h1>
             {total > 0 && (
               <p className="text-muted-foreground text-[13px] mt-1">{countLabel}</p>
+            )}
+            {(category.subcategories?.length || 0) > 0 && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/category/${category.slug}`)}
+                  className={`min-h-11 px-4 text-[12px] font-semibold border ${!activeSubSlug ? "bg-foreground text-background border-foreground" : "border-border"}`}
+                >
+                  {catalog(category.slug, category.name)}
+                </button>
+                {category.subcategories!.map((sub) => (
+                  <button
+                    key={sub.id}
+                    type="button"
+                    onClick={() => navigate(`/category/${category.slug}?sub=${sub.slug}`)}
+                    className={`min-h-11 px-4 text-[12px] font-semibold border ${activeSubSlug === sub.slug ? "bg-foreground text-background border-foreground" : "border-border"}`}
+                  >
+                    {catalog(sub.slug, sub.name)}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
         </>
@@ -125,21 +172,18 @@ export default function Shop({ categories = [], onAddToCart, onWishlist, wishlis
       )}
 
       {pageId === "categories" ? (
-        categories.filter((c) => !isButcherCategory(c)).length > 0 ? (
+        browseTiles.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {categories.filter((c) => !isButcherCategory(c)).map((cat) => (
+            {browseTiles.map((tile) => (
               <button
-                key={cat.id}
-                onClick={() => navigate(`/category/${cat.slug}`)}
-                className="group relative rounded-2xl overflow-hidden aspect-[4/3] flex flex-col justify-end text-left border border-border hover:border-primary transition-colors"
+                key={tile.key}
+                onClick={() => navigate(tilePath(tile))}
+                className="group relative rounded-2xl overflow-hidden aspect-[4/3] flex flex-col justify-end text-left border border-border hover:border-primary transition-colors bg-muted"
               >
-                <img src={cat.img} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-400 group-hover:scale-105" />
+                {tile.img && <img src={tile.img} alt="" className="absolute inset-0 w-full h-full object-cover transition-transform duration-400 group-hover:scale-105" />}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
                 <div className="relative z-10 p-4">
-                  <p className="text-white text-[13px] font-semibold leading-tight">{catalog(cat.slug, cat.name)}</p>
-                  {typeof cat.count === "number" && cat.count > 0 && (
-                    <p className="text-white/60 text-[11px] mt-0.5">{t(cat.count === 1 ? "shop.itemOne" : "shop.itemMany", { n: cat.count })}</p>
-                  )}
+                  <p className="text-white text-[13px] font-semibold leading-tight">{catalog(tile.slug, tile.label)}</p>
                 </div>
               </button>
             ))}

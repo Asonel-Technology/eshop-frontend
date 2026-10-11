@@ -53,8 +53,8 @@ export default function ProductDetail({ onAddToCart, onWishlist, wishlist }: Pro
         setSelectedVariants(defaultSels);
 
         if (fullItem.categorySlug) {
-          const relatedData = await getItems({ categorySlug: fullItem.categorySlug, pageSize: 5 });
-          setRelated(relatedData.items.filter((p: Product) => String(p.id) !== String(id)).slice(0, 4));
+          const relatedData = await getItems({ type: fullItem.type === "FOOD" ? "FOOD" : "PRODUCT", categorySlug: fullItem.categorySlug, pageSize: 8 });
+          setRelated(relatedData.items.filter((p: Product) => String(p.id) !== String(id) && (fullItem.type === "FOOD" ? p.type === "FOOD" : p.type !== "FOOD")).slice(0, 4));
         }
       } catch (err) {
         console.error("Failed to load product details", err);
