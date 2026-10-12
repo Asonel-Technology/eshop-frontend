@@ -12,6 +12,9 @@ export default function SettingsManager() {
   const [saved, setSaved] = useState(false);
 
   const [momoCode, setMomoCode] = useState("");
+  const [momoName, setMomoName] = useState("");
+  const [butcherMomoCode, setButcherMomoCode] = useState("");
+  const [butcherMomoName, setButcherMomoName] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState("");
   const [provinceId, setProvinceId] = useState("");
   const [districtId, setDistrictId] = useState("");
@@ -31,6 +34,9 @@ export default function SettingsManager() {
           getProvinces(),
         ]);
         setMomoCode(shop.momoCode || "");
+        setMomoName(shop.momoName || "");
+        setButcherMomoCode(shop.butcherMomoCode || "");
+        setButcherMomoName(shop.butcherMomoName || "");
         setWhatsappNumber(shop.whatsappNumber || "");
         setProvinceId(shop.shopProvinceId || "");
         setDistrictId(shop.shopDistrictId || "");
@@ -70,6 +76,9 @@ export default function SettingsManager() {
     try {
       await updateAdminSettings({
         momoCode,
+        momoName,
+        butcherMomoCode,
+        butcherMomoName,
         whatsappNumber,
         shopProvinceId: provinceId,
         shopDistrictId: districtId,
@@ -99,13 +108,45 @@ export default function SettingsManager() {
 
       <fieldset className="space-y-4">
         <legend className="text-[11px] tracking-[0.18em] uppercase text-[#6b6256]">Payment & WhatsApp</legend>
+        <p className="text-[12px] text-[#6b6256]">Kitchen and the butcher use different MoMo accounts.</p>
         <label className="block">
-          <span className="block text-[12px] mb-1">MoMo code</span>
+          <span className="block text-[12px] mb-1">Shop MoMo (Blessing)</span>
           <input
             value={momoCode}
             onChange={(e) => setMomoCode(e.target.value)}
             required
+            placeholder="0788217040"
             className="w-full h-11 px-3 bg-[#f7f1e7] border border-[#d8cfc0] outline-none focus:border-[#1c1915] tabular"
+          />
+        </label>
+        <label className="block">
+          <span className="block text-[12px] mb-1">Shop account name</span>
+          <input
+            value={momoName}
+            onChange={(e) => setMomoName(e.target.value)}
+            required
+            placeholder="Clementine Byukusenge"
+            className="w-full h-11 px-3 bg-[#f7f1e7] border border-[#d8cfc0] outline-none focus:border-[#1c1915]"
+          />
+        </label>
+        <label className="block">
+          <span className="block text-[12px] mb-1">Butcher MoMo</span>
+          <input
+            value={butcherMomoCode}
+            onChange={(e) => setButcherMomoCode(e.target.value)}
+            required
+            placeholder="670011"
+            className="w-full h-11 px-3 bg-[#f7f1e7] border border-[#d8cfc0] outline-none focus:border-[#1c1915] tabular"
+          />
+        </label>
+        <label className="block">
+          <span className="block text-[12px] mb-1">Butcher account name</span>
+          <input
+            value={butcherMomoName}
+            onChange={(e) => setButcherMomoName(e.target.value)}
+            required
+            placeholder="Phocus Uwamahoro"
+            className="w-full h-11 px-3 bg-[#f7f1e7] border border-[#d8cfc0] outline-none focus:border-[#1c1915]"
           />
         </label>
         <label className="block">

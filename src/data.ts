@@ -87,6 +87,81 @@ export function isButcherItem(item?: { type?: string; categorySlug?: string } | 
   return item.categorySlug === "butcher" || item.categorySlug === "meat";
 }
 
+export type CheckoutPayee = {
+  department: "shop" | "butcher";
+  code: string;
+  holder: string;
+  label: string;
+};
+
+export const DEFAULT_SHOP_PAYEE: CheckoutPayee = {
+  department: "shop",
+  code: "0788217040",
+  holder: "Clementine Byukusenge",
+  label: "Blessing",
+};
+
+export const DEFAULT_BUTCHER_PAYEE: CheckoutPayee = {
+  department: "butcher",
+  code: "670011",
+  holder: "Phocus Uwamahoro",
+  label: "Butcher",
+};
+
+type PayeeSettings = {
+  momoCode?: string | null;
+  momoName?: string | null;
+  butcherMomoCode?: string | null;
+  butcherMomoName?: string | null;
+};
+
+export function cartHasButcher(items: { type?: string; categorySlug?: string }[]) {
+  return items.some((item) => isButcherItem(item));
+}
+
+export function cartHasShop(items: { type?: string; categorySlug?: string }[]) {
+  return items.some((item) => !isButcherItem(item));
+}
+
+export function isMixedCart(items: { type?: string; categorySlug?: string }[]) {
+  return cartHasButcher(items) && cartHasShop(items);
+}
+
+/** Shop and butcher pay different MoMo accounts. Mixed bags cannot use one screenshot. */
+export function resolveCheckoutPayee(
+  items: { type?: string; categorySlug?: string }[],
+  settings?: PayeeSettings | null,
+): { mixed: true; payee: null } | { mixed: false; payee: CheckoutPayee } {
+  if (isMixedCart(items)) return { mixed: true, payee: null };
+
+  if (cartHasButcher(items)) {
+    return {
+      mixed: false,
+      payee: {
+        ...DEFAULT_BUTCHER_PAYEE,
+        code: settings?.butcherMomoCode || DEFAULT_BUTCHER_PAYEE.code,
+        holder: settings?.butcherMomoName || DEFAULT_BUTCHER_PAYEE.holder,
+      },
+    };
+  }
+
+  // Until the API exposes butcherMomoCode, ignore a leftover single shop momoCode
+  // so kitchen never pays the butcher account.
+  const dualReady = Boolean(settings?.butcherMomoCode);
+  return {
+    mixed: false,
+    payee: {
+      ...DEFAULT_SHOP_PAYEE,
+      code: dualReady ? (settings?.momoCode || DEFAULT_SHOP_PAYEE.code) : DEFAULT_SHOP_PAYEE.code,
+      holder: settings?.momoName || DEFAULT_SHOP_PAYEE.holder,
+    },
+  };
+}
+
+export function payeeWhatsappLine(payee: CheckoutPayee) {
+  return `Pay to: ${payee.code} (${payee.holder} — ${payee.label})`;
+}
+
 /** Backend `unit` for FOOD (kg, g, pcs, l). Meat defaults to kg. */
 export function itemUnit(item?: { type?: string; unit?: string | null; categorySlug?: string } | null) {
   if (!item) return undefined;

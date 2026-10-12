@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { CartItem } from "../data";
-import { formatRWF, variantLabel, isRwandaMobile } from "../data";
+import type { CartItem, CheckoutPayee } from "../data";
+import {
+  formatRWF,
+  variantLabel,
+  isRwandaMobile,
+  resolveCheckoutPayee,
+  payeeWhatsappLine,
+} from "../data";
 import {
   getProvinces,
   getDistricts,
@@ -46,6 +52,32 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
   const [copied, setCopied] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [orderResponse, setOrderResponse] = useState<any>(null);
+  const [proofUrl, setProofUrl] = useState<string | null>(null);
+  const [paidTo, setPaidTo] = useState<CheckoutPayee | null>(null);
+
+  const checkoutPayee = resolveCheckoutPayee(items, settings);
+  const mixedCart = checkoutPayee.mixed;
+  const payee = checkoutPayee.payee;
+  const momoCode = payee?.code || null;
+
+  function whatsappUrlWithProof(waUrl: string, screenshotUrl?: string | null, dest?: CheckoutPayee | null) {
+    try {
+      const parsed = new URL(waUrl);
+      let text = parsed.searchParams.get("text") || "";
+      text = text.replace("(Payment screenshot attached separately in this chat)", "").trim();
+      if (dest) {
+        const line = payeeWhatsappLine(dest);
+        if (!text.includes(dest.code)) text = `${text}\n${line}`;
+      }
+      if (screenshotUrl && !text.includes(screenshotUrl)) {
+        text = `${text}\n\nPayment screenshot:\n${screenshotUrl}`;
+      }
+      parsed.searchParams.set("text", text);
+      return parsed.toString();
+    } catch {
+      return waUrl;
+    }
+  }
 
   // Delivery fee and total are whatever the backend says they are — never computed here.
   const [quote, setQuote] = useState<OrderQuote | null>(null);
@@ -55,7 +87,6 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
   const total = quote?.total ?? subtotal;
 
-  const momoCode = settings?.momoCode || null;
   const locationComplete = !!(form.province && form.district && form.sector);
 
   const orderLines = items.map((i) => ({
@@ -138,12 +169,14 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
 
   async function submitPayment(e: React.FormEvent) {
     e.preventDefault();
-    if (!confirmed || !screenshot || submitting) return;
+    if (!confirmed || !screenshot || submitting || mixedCart || !payee) return;
     setSubmitting(true);
     setErrorMessage(null);
     
     try {
       const url = await uploadPaymentProof(screenshot);
+      setProofUrl(url);
+      setPaidTo(payee);
 
       const payload = {
         customerName: form.fullName,
@@ -172,7 +205,10 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
   if (page === "success") {
     const orderNum = orderResponse?.order?.id || "#---";
     const orderTotal = orderResponse?.order?.total || total;
-    const waUrl = orderResponse?.whatsappRedirectUrl;
+    const rawWa = orderResponse?.whatsappRedirectUrl;
+    const waUrl = rawWa
+      ? whatsappUrlWithProof(rawWa, proofUrl || orderResponse?.order?.paymentProofUrl, paidTo)
+      : null;
 
     return (
       <div className="max-w-xl mx-auto px-4 sm:px-6 py-16 text-center">
@@ -217,13 +253,14 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
   }
 
   if (page === "payment") {
-    // Without a MoMo code there is nowhere to send money, so never ask for a screenshot.
-    if (!momoCode) {
+    if (mixedCart || !momoCode || !payee) {
       return (
         <div className="max-w-xl mx-auto px-4 sm:px-6 py-16 text-center">
-          <h1 className="font-serif text-2xl font-bold mb-2">{t("pay.unavailable")}</h1>
+          <h1 className="font-serif text-2xl font-bold mb-2">
+            {mixedCart ? t("check.title") : t("pay.unavailable")}
+          </h1>
           <p className="text-muted-foreground text-[13px] mb-6">
-            {t("pay.unavailableSub")}
+            {mixedCart ? t("check.mixed") : t("pay.unavailableSub")}
           </p>
           <button
             onClick={() => setPage("checkout")}
@@ -245,9 +282,11 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
           <p className="font-bold text-[13px] mb-1">{t("pay.sendTo", { amount: formatRWF(total) })}</p>
           <div className="flex items-center justify-between bg-white rounded-xl border border-[#FFD5C0] px-4 py-3 mb-3">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">MTN Mobile Money</p>
-              <p className="font-mono font-bold text-lg text-foreground">{momoCode}</p>
-              <p className="text-[11px] text-muted-foreground">Blessing</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                {payee.department === "butcher" ? t("pay.butcherLabel") : t("pay.shopLabel")}
+              </p>
+              <p className="font-mono font-bold text-lg text-foreground">{payee.code}</p>
+              <p className="text-[11px] text-muted-foreground">{payee.holder}</p>
             </div>
             <button
               type="button"
@@ -259,7 +298,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
           </div>
           <p className="text-[11px] text-muted-foreground leading-relaxed">
             {t("pay.step1")}<br />
-            {t("pay.step2", { amount: formatRWF(total), code: momoCode })}<br />
+            {t("pay.step2", { amount: formatRWF(total), code: payee.code })}<br />
             {t("pay.step3")}<br />
             {t("pay.step4")}
           </p>
@@ -301,7 +340,7 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
             onChange={(e) => setConfirmed(e.target.checked)}
             className="mt-0.5 w-5 h-5 accent-primary"
           />
-          <span className="text-[13px] leading-relaxed">{t("pay.confirm", { amount: formatRWF(total) })}</span>
+          <span className="text-[13px] leading-relaxed">{t("pay.confirm", { amount: formatRWF(total), holder: payee.holder })}</span>
         </label>
 
         {errorMessage && (
@@ -546,12 +585,16 @@ export default function Checkout({ items, settings, onClearCart }: CheckoutProps
                 </div>
               )}
               {/* Payment method */}
-              <p className="text-[12px] text-muted-foreground mb-5">{t("check.payWith")}</p>
+              {mixedCart ? (
+                <p className="text-[12px] text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-5">{t("check.mixed")}</p>
+              ) : (
+                <p className="text-[12px] text-muted-foreground mb-5">{t("check.payWith")}</p>
+              )}
               <div className="flex gap-3">
                 <button onClick={() => setStep(2)} className="flex-1 min-h-12 border border-border text-[11px] font-bold tracking-wider uppercase py-3.5 rounded-xl hover:bg-muted transition-colors">{t("check.back")}</button>
                 <button
                   onClick={() => setPage("payment")}
-                  disabled={!quote || !quote.fulfillable || quoteLoading}
+                  disabled={mixedCart || !quote || !quote.fulfillable || quoteLoading}
                   className="flex-1 min-h-12 bg-primary text-white font-bold text-[11px] tracking-[0.15em] uppercase py-3.5 rounded-xl hover:bg-secondary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   {quoteLoading ? t("check.checking") : t("check.pay")}

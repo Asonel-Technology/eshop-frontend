@@ -45,7 +45,8 @@ export default function Dashboard() {
   if (error) return <p className="text-[#9a3412]">{error}</p>;
 
   const missing = [
-    !settings?.momoCode && "MoMo code",
+    !settings?.momoCode && "shop MoMo",
+    !settings?.butcherMomoCode && "butcher MoMo",
     !settings?.whatsappNumber && "WhatsApp number",
     !settings?.shopSectorId && "shop location",
   ].filter(Boolean);

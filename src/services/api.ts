@@ -4,6 +4,9 @@ const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
 
 export interface PublicSettings {
   momoCode: string | null;
+  momoName?: string | null;
+  butcherMomoCode?: string | null;
+  butcherMomoName?: string | null;
   whatsappNumber: string | null;
   deliveryZones: { zone: string; fee: number }[];
 }

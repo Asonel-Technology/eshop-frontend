@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import type { CartItem } from "../data";
-import { formatRWF, formatItemPrice, variantLabel } from "../data";
+import { formatRWF, formatItemPrice, variantLabel, isMixedCart } from "../data";
 import { useI18n } from "../i18n/LanguageContext";
 
 interface CartProps {
@@ -14,6 +14,7 @@ interface CartProps {
 export default function Cart({ items, onClose, onRemove, onUpdateQty, onCheckout }: CartProps) {
   const { t } = useI18n();
   const subtotal = items.reduce((s, i) => s + i.price * i.qty, 0);
+  const mixed = isMixedCart(items);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -108,9 +109,15 @@ export default function Cart({ items, onClose, onRemove, onUpdateQty, onCheckout
                 <span className="text-muted-foreground">{t("cart.delivery")}</span>
                 <span className="text-muted-foreground">{t("cart.deliveryLater")}</span>
               </div>
+              {mixed && (
+                <p className="text-[12px] text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2.5 mb-3">
+                  {t("cart.mixed")}
+                </p>
+              )}
               <button
                 onClick={onCheckout}
-                className="w-full bg-primary text-white font-bold text-[11px] tracking-[0.15em] uppercase min-h-12 rounded-xl hover:bg-secondary transition-colors mb-2"
+                disabled={mixed}
+                className="w-full bg-primary text-white font-bold text-[11px] tracking-[0.15em] uppercase min-h-12 rounded-xl hover:bg-secondary transition-colors mb-2 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {t("cart.checkout")}
               </button>
