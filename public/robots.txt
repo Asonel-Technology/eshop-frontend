@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /checkout
+Disallow: /wishlist
+
+Sitemap: https://blessinge-shop.netlify.app/sitemap.xml
